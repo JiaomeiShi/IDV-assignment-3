@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IDV Assignment 3 — D3 Replications</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans","PingFang SC","Microsoft YaHei",sans-serif;background:#eef4f4;margin:0;padding:32px;}
+    h1{margin:0 0 8px 0;}
+    .note{color:#4b5563;margin:0 0 24px 0}
+    .card{background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.06);padding:20px;margin-bottom:28px}
+    #chart1{width:100%;overflow:auto}
+  </style>
+</head>
+<body>
+
+  <h1>Assignment 3 + Presentation 1</h1>
+  <p class="note">Chart 1 (vector space) — replicated with D3.js. Grid density not exact by design.</p>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Chart 1 — Vector Space</h2>
+    <div id="chart1"></div>
+  </div>
+
+  <!-- D3.js -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <script>
+  // ====== BASIC SVG ======
+  const width = 880, height = 400;
+  const svg = d3.select("#chart1")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .style("background","#fff")
+    .style("border-radius","8px");
+
+  // ====== GRID ======
+  const step = 50;
+  const grid = svg.append("g");
+  for (let x = 0; x <= width; x += step) {
+    grid.append("line")
+      .attr("x1", x).attr("y1", 0)
+      .attr("x2", x).attr("y2", height)
+      .attr("stroke", "#cfcfcf");
+  }
+  for (let y = 0; y <= height; y += step) {
+    grid.append("line")
+      .attr("x1", 0).attr("y1", y)
+      .attr("x2", width).attr("y2", y)
+      .attr("stroke", "#cfcfcf");
+  }
+
+  // ====== POINTS ======
+  const pts = [
+    {x:300,y:100,label:"e\u00B9\u03B1"}, // e¹α
+    {x:200,y:120,label:"e\u00B2\u03B1"}, // e²α
+    {x:250,y:250,label:"e\u00B9\u03B2"}, // e¹β
+    {x:160,y:260,label:"e\u00B2\u03B2"}, // e²β
+  ];
+
+  // points
+  svg.selectAll("circle")
+    .data(pts)
+    .enter()
+    .append("circle")
+    .attr("cx", d => d.x)
+    .attr("cy", d => d.y)
+    .attr("r", 5)
+    .attr("fill", "#2b4a7f");
+
+  // labels
+  svg.selectAll("text.label")
+    .data(pts)
+    .enter()
+    .append("text")
+    .attr("class","label")
+    .attr("x", d => d.x + 8)
+    .attr("y", d => d.y - 8)
+    .text(d => d.label)
+    .style("font-size","20px")
+    .style("font-family","Georgia, serif")
+    .style("fill","#1f2937");
+
+  // ====== ARROWED LINES (dashed) ======
+  const links = [
+    {from: pts[0], to: pts[2]}, // e¹α -> e¹β
+    {from: pts[1], to: pts[3]}, // e²α -> e²β
+    {from: pts[1], to: pts[0]}, // e²α -> e¹α
+    {from: pts[3], to: pts[2]}, // e²β -> e¹β
+  ];
+
+  // simple arrow head
+  svg.append("defs").append("marker")
+    .attr("id","arrow")
+    .attr("viewBox","0 0 10 10")
+    .attr("refX",9).attr("refY",5)
+    .attr("markerWidth",6).attr("markerHeight",6)
+    .attr("orient","auto-start-reverse")
+    .append("path")
+      .attr("d","M 0 0 L 10 5 L 0 10 z")
+      .attr("fill","#1d4e89");
+
+  links.forEach(l => {
+    svg.append("line")
+      .attr("x1", l.from.x)
+      .attr("y1", l.from.y)
+      .attr("x2", l.from.x)     // start collapsed for transition
+      .attr("y2", l.from.y)
+      .attr("stroke", "#1d4e89")
+      .attr("stroke-width", 2)
+      .attr("stroke-dasharray", "6 4")
+      .attr("marker-end","url(#arrow)")
+      .on("mouseover", function(){
+        d3.select(this).transition().duration(200).attr("stroke-width",5);
+      })
+      .on("mouseout", function(){
+        d3.select(this).transition().duration(200).attr("stroke-width",2);
+      })
+      // transition: draw from start to end
+      .transition().duration(800)
+      .attr("x2", l.to.x)
+      .attr("y2", l.to.y);
+  });
+
+  </script>
+</body>
+</html>
