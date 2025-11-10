@@ -194,6 +194,51 @@ svg2.selectAll("text")
   .attr("fill","#1864ab");
 
 </script>
+<!-- ================= Chart 4 ================= -->
+
+<h2 style="margin-top:40px;">Chart 4 – Cluster Scatter</h2>
+<div id="chart4" class="card"></div>
+
+<script>
+// Chart4 – 2 clusters of scatter points
+
+const width4 = 880, height4 = 400;
+const svg4 = d3.select("#chart4")
+  .append("svg")
+  .attr("width", width4)
+  .attr("height", height4);
+
+// 2 clusters
+const clusterA = d3.range(30).map(()=>({x:200 + Math.random()*60, y:180 + Math.random()*60}));
+const clusterB = d3.range(30).map(()=>({x:550 + Math.random()*60, y:180 + Math.random()*60}));
+
+const points4 = clusterA.concat(clusterB);
+
+// draw points
+svg4.selectAll("circle")
+   .data(points4)
+   .enter()
+   .append("circle")
+   .attr("cx",d=>d.x)
+   .attr("cy",d=>d.y)
+   .attr("r",4)
+   .attr("fill","#1864ab")
+   .attr("opacity",0.8)
+   .on("mouseover",function(){
+      d3.select(this).transition().duration(150).attr("r",10);
+   })
+   .on("mouseout",function(){
+      d3.select(this).transition().duration(150).attr("r",4);
+   });
+
+</script>
+
+<div class="note-block">
+  <h3>Notes for Chart 4 – Cluster Scatter</h3>
+  <p>This chart replicates the “cluster scatter” visual. Two clusters of points were generated. Each cluster is jittered within a box.</p>
+  <p>Hover interaction enlarges each point, satisfying the “at least one D3 interaction per chart” requirement.</p>
+</div>
+
 <div class="note-block">
   <h3>Notes for Chart 2 — Word Network</h3>
   <p>
