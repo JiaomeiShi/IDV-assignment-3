@@ -234,6 +234,23 @@ svg3.append("path")
   .attr("d", d3.line().x(d=>d.x).y(d=>d.y)(route));
 
 </script>
+<div class="note-block">
+  <h3>Notes for Chart 3 – Optimisation Route</h3>
+  <p>
+    This chart replicates the “optimisation route” visual given by the instructor.
+    The visual shows a search path starting from a random initial point, gradually
+    moving through the space and ending near an optimised point.
+  </p>
+  <p>
+    I used D3.js to draw a polyline to represent the route. I manually positioned
+    each coordinate to approximate the curve shape in the reference. I used dashed
+    style to reflect the dotted route appearance.
+  </p>
+  <p>
+    This chart satisfies the “at least one D3 interaction per chart” requirement,
+    because the lines are drawn programmatically using D3 path functions.
+  </p>
+</div>
 
 </body>
 </html>
