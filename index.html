@@ -209,6 +209,31 @@ svg2.selectAll("text")
     
 <h2 style="margin-top:40px;">Chart 3 – Optimization Route</h2>
 <div id="chart3" class="card"></div>
-    
+    <script>
+
+// chart3 basic demo lines only -- simplified
+const w3 = 880, h3 = 400;
+const svg3 = d3.select("#chart3")
+  .append("svg")
+  .attr("width", w3)
+  .attr("height", h3);
+
+// simple polyline path
+const route = [
+  {x:200,y:350}, {x:220,y:300}, {x:250,y:250}, {x:300,y:200},
+  {x:350,y:180}, {x:400,y:200}, {x:450,y:220}, {x:500,y:230},
+  {x:550,y:240}, {x:600,y:245}, {x:650,y:250}
+];
+
+// draw route
+svg3.append("path")
+  .attr("fill","none")
+  .attr("stroke","#1864ab")
+  .attr("stroke-width",2)
+  .attr("stroke-dasharray","5 3")
+  .attr("d", d3.line().x(d=>d.x).y(d=>d.y)(route));
+
+</script>
+
 </body>
 </html>
