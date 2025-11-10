@@ -140,7 +140,58 @@ To replicate the dashed vector arrows, I created line elements using the coordin
 
 <!-- Chart 2 Script -->
 <script>
-// chart2 code will go here
+const width2 = 880, height2 = 400;
+const svg2 = d3.select("#chart2")
+  .append("svg")
+  .attr("width", width2)
+  .attr("height", height2);
+
+// nodes
+const words = [
+  {id:"strike", x:200, y:100},
+  {id:"protest", x:150, y:180},
+  {id:"riot", x:250, y:180},
+  {id:"crowd", x:200, y:260},
+
+  {id:"earthquake", x:550, y:100},
+  {id:"tsunami", x:500, y:180},
+  {id:"collapse", x:600, y:180},
+  {id:"tremor", x:650, y:260},
+  {id:"shaking", x:700, y:120}
+];
+
+// simple links
+const links2 = [
+  ["strike","protest"],["strike","crowd"],["riot","protest"],["riot","crowd"],
+
+  ["earthquake","tsunami"],["earthquake","shaking"],["tsunami","collapse"],
+  ["collapse","tremor"],["shaking","tremor"]
+];
+
+// draw links
+links2.forEach(function(l){
+  const a = words.find(w=>w.id===l[0]);
+  const b = words.find(w=>w.id===l[1]);
+  svg2.append("line")
+     .attr("x1",a.x).attr("y1",a.y)
+     .attr("x2",b.x).attr("y2",b.y)
+     .attr("stroke","#1864ab")
+     .attr("stroke-width",2)
+     .attr("stroke-dasharray","5 3");
+});
+
+// draw nodes
+svg2.selectAll("text")
+  .data(words)
+  .enter()
+  .append("text")
+  .text(d=>d.id)
+  .attr("x",d=>d.x)
+  .attr("y",d=>d.y)
+  .attr("font-size","16px")
+  .attr("font-family","Arial")
+  .attr("fill","#1864ab");
+
 </script>
 
 </body>
