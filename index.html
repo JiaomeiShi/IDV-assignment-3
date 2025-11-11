@@ -43,9 +43,21 @@ const pts1=[
 
 svg1.selectAll("circle").data(pts1).enter().append("circle")
  .attr("cx",d=>d.x).attr("cy",d=>d.y).attr("r",5).attr("fill","#1b4393");
+// Chart1: circles enter + hover
+svg1.selectAll("circle")
+  .transition().duration(800).attr("r", 8);
+
+svg1.selectAll("circle")
+  .on("mouseover", function(){ d3.select(this).transition().duration(150).attr("r", 12); })
+  .on("mouseout",  function(){ d3.select(this).transition().duration(150).attr("r", 8);  });
 
 svg1.selectAll("text").data(pts1).enter().append("text")
  .attr("x",d=>d.x+6).attr("y",d=>d.y-6).text(d=>d.l).style("font-size","20px").style("font-family","Georgia");
+// Chart1: labels fade in
+svg1.selectAll("text")
+  .style("opacity", 0)
+  .transition().delay(400).duration(600)
+  .style("opacity", 1);
 
 // arrow head
 svg1.append("defs").append("marker")
@@ -111,12 +123,19 @@ links2.forEach(l=>{
  .attr("x2",b.x).attr("y2",b.y)
  .attr("stroke","#1864ab").attr("stroke-width",2).attr("stroke-dasharray","5 3");
 });
+.on("mouseover", function(){ d3.select(this).transition().duration(120).attr("stroke-width",4); })
+.on("mouseout",  function(){ d3.select(this).transition().duration(120).attr("stroke-width",2); });
 
 svg2.selectAll("text")
 .data(words2).enter().append("text")
 .text(d=>d.id).attr("x",d=>d.x).attr("y",d=>d.y)
 .style("font-size","16px").style("fill","#1864ab");
 </script>
+// Chart2: word labels fade in
+svg2.selectAll("text")
+  .style("opacity", 0)
+  .transition().duration(600)
+  .style("opacity", 1);
 
 <div class="note-block">
  <h3>Notes for Chart 2 — Word Network</h3>
@@ -142,6 +161,13 @@ svg3.append("path")
  .attr("fill","none").attr("stroke","#1864ab").attr("stroke-width",2).attr("stroke-dasharray","5 3")
  .attr("d",d3.line().x(d=>d.x).y(d=>d.y)(route3));
 </script>
+// Chart3: draw path with stroke-dash animation
+const p3 = svg3.select("path");
+const L3 = p3.node().getTotalLength();
+p3.attr("stroke-dasharray", L3 + " " + L3)
+  .attr("stroke-dashoffset", L3)
+  .transition().duration(1200).ease(d3.easeCubicInOut)
+  .attr("stroke-dashoffset", 0);
 
 <div class="note-block">
  <h3>Notes for Chart 3 — Optimization Route</h3>
@@ -162,9 +188,15 @@ const pts4=cA.concat(cB);
 
 svg4.selectAll("circle")
 .data(pts4).enter().append("circle")
-.attr("cx",d=>d.x).attr("cy",d=>d.y).attr("r",4).attr("fill","#7e57c2").attr("opacity",0.8)
+.attr("cx",d=>d.x).attr("cy",d=>d.y).attr("r",4).attr("fill","#7e57c2").attr("opacity",0)
 .on("mouseover",function(){d3.select(this).transition().duration(120).attr("r",10);})
 .on("mouseout",function(){d3.select(this).transition().duration(120).attr("r",4);});
+// Chart4: scatter points entrance (drop + fade)
+svg4.selectAll("circle")
+  .attr("cy", d => d.y - 20)
+  .transition().duration(600)
+  .attr("cy", d => d.y)
+  .attr("opacity", 0.85);
 </script>
 
 <div class="note-block">
@@ -191,7 +223,9 @@ svg5.append("text").attr("x",280).attr("y",380).text("1").style("font-size","14p
 
 // right two green lines
 const line1=[{x:500,y:120},{x:650,y:140},{x:800,y:200}];
-svg5.append("path").attr("fill","none").attr("stroke","#3b7e3b").attr("stroke-width",3)
+svg5.append("path") .classed("plot-line", true)
+  .attr("fill","none").attr("stroke","#3b7e3b").attr("stroke-width",3)
+  .attr("d",d3.line().x(d=>d.x).y(d=>d.y)(line1));.attr("fill","none").attr("stroke","#3b7e3b").attr("stroke-width",3)
  .attr("d",d3.line().x(d=>d.x).y(d=>d.y)(line1));
 
 const line2=[{x:500,y:200},{x:650,y:260},{x:800,y:300}];
