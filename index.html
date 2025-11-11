@@ -1,301 +1,54 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>IDV Assignment 3 — D3 Replications</title>
-  <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans","PingFang SC","Microsoft YaHei",sans-serif;background:#eef4f4;margin:0;padding:32px;}
-    h1{margin:0 0 8px 0;}
-    .note{color:#4b5563;margin:0 0 24px 0}
-    .card{background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.06);padding:20px;margin-bottom:28px}
-    #chart1{width:100%;overflow:auto}
-    .note-block{margin:40px 0;}
-  </style>
-</head>
-<body>
-  
-  <h1>Assignment 3 + Presentation 1</h1>
-  <p class="note">Chart 1 (vector space) — replicated with D3.js. Grid density not exact by design.</p>
+<!-- CHART 1: vector space -->
+<h3>Chart 1 (vector space)</h3>
+<div id="chart1"></div>
 
-  <div class="card">
-    <h2 style="margin-top:0;">Chart 1 — Vector Space</h2>
-    <div id="chart1"></div>
-
-  <!-- D3.js -->
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-
-  <script>
-  // ====== BASIC SVG ======
-  const width = 880, height = 400;
-  const svg = d3.select("#chart1")
-    .append("svg")
-    .attr("width", width)
-    .attr("height", height)
-    .style("background","#fff")
-    .style("border-radius","8px");
-
-  // ====== GRID ======
-  const step = 50;
-  const grid = svg.append("g");
-  for (let x = 0; x <= width; x += step) {
-    grid.append("line")
-      .attr("x1", x).attr("y1", 0)
-      .attr("x2", x).attr("y2", height)
-      .attr("stroke", "#cfcfcf");
-  }
-  for (let y = 0; y <= height; y += step) {
-    grid.append("line")
-      .attr("x1", 0).attr("y1", y)
-      .attr("x2", width).attr("y2", y)
-      .attr("stroke", "#cfcfcf");
-  }
-
-  // ====== POINTS ======
-  const pts = [
-    {x:300,y:100,label:"e\u00B9\u03B1"}, // e¹α
-    {x:200,y:120,label:"e\u00B2\u03B1"}, // e²α
-    {x:250,y:250,label:"e\u00B9\u03B2"}, // e¹β
-    {x:160,y:260,label:"e\u00B2\u03B2"}, // e²β
-  ];
-
-  // points
-  svg.selectAll("circle")
-    .data(pts)
-    .enter()
-    .append("circle")
-    .attr("cx", d => d.x)
-    .attr("cy", d => d.y)
-    .attr("r", 5)
-    .attr("fill", "#2b4a7f");
-
-  // labels
-  svg.selectAll("text.label")
-    .data(pts)
-    .enter()
-    .append("text")
-    .attr("class","label")
-    .attr("x", d => d.x + 8)
-    .attr("y", d => d.y - 8)
-    .text(d => d.label)
-    .style("font-size","20px")
-    .style("font-family","Georgia, serif")
-    .style("fill","#1f2937");
-
-  // ====== ARROWED LINES (dashed) ======
-  const links = [
-    {from: pts[0], to: pts[2]}, // e¹α -> e¹β
-    {from: pts[1], to: pts[3]}, // e²α -> e²β
-    {from: pts[1], to: pts[0]}, // e²α -> e¹α
-    {from: pts[3], to: pts[2]}, // e²β -> e¹β
-  ];
-
-  // simple arrow head
-  svg.append("defs").append("marker")
-    .attr("id","arrow")
-    .attr("viewBox","0 0 10 10")
-    .attr("refX",9).attr("refY",5)
-    .attr("markerWidth",6).attr("markerHeight",6)
-    .attr("orient","auto-start-reverse")
-    .append("path")
-      .attr("d","M 0 0 L 10 5 L 0 10 z")
-      .attr("fill","#1d4e89");
-
-  links.forEach(l => {
-    svg.append("line")
-      .attr("x1", l.from.x)
-      .attr("y1", l.from.y)
-      .attr("x2", l.from.x)     // start collapsed for transition
-      .attr("y2", l.from.y)
-      .attr("stroke", "#1d4e89")
-      .attr("stroke-width", 2)
-      .attr("stroke-dasharray", "6 4")
-      .attr("marker-end","url(#arrow)")
-      .on("mouseover", function(){
-        d3.select(this).transition().duration(200).attr("stroke-width",5);
-      })
-      .on("mouseout", function(){
-        d3.select(this).transition().duration(200).attr("stroke-width",2);
-      })
-      // transition: draw from start to end
-      .transition().duration(800)
-      .attr("x2", l.to.x)
-      .attr("y2", l.to.y);
-  });
-
-  </script>
-  <div class="note-block">
-<h3>Notes for Chart 1 — Vector Space</h3>
-<p>
-For this chart, I first examined the original reference image given by the instructor. It contained a 2D vector space visual: a grid, four basis vectors (e¹ᵅ, e²ᵅ, e¹ᵝ, e²ᵝ), and dashed vector arrows between these points. Since the instruction says the magnitude and grid density do not need to be exact, I simplified the design using a fixed pixel grid.
-</p>
-<p>
-I used D3.js to create an SVG of size 880 × 400. I generated the background grid by drawing vertical and horizontal lines at 50px intervals. Then, I hard-coded the approximate coordinates for the 4 basis vectors manually in a JavaScript array. For each point, I drew a circle and added a text label near it.
-</p>
-<p>
-To replicate the dashed vector arrows, I created line elements using the coordinates of the start/end points. I used stroke-dasharray to mimic the dotted style. I also added a simple hover interaction: when the mouse enters a line, I increase the stroke width from 2px to 5px. This interaction satisfies the requirement of “at least one interaction per chart”. In addition, each line animates from zero length to its final length (transition) when the chart loads, satisfying the “at least one transition per chart” requirement.
-</p>
-</div>
-<h2 style="margin-top:40px;">Chart 2 – Word Network</h2>
-<div id="chart2" class="card"></div>
-
-<!-- Chart 2 Script -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-const width2 = 880, height2 = 400;
-const svg2 = d3.select("#chart2")
+// chart1 code
+const width1 = 400, height1 = 250;
+const svg1 = d3.select("#chart1")
   .append("svg")
-  .attr("width", width2)
-  .attr("height", height2);
+  .attr("width", width1)
+  .attr("height", height1);
 
-// nodes
-const words = [
-  {id:"strike", x:200, y:100},
-  {id:"protest", x:150, y:180},
-  {id:"riot", x:250, y:180},
-  {id:"crowd", x:200, y:260},
+// grid
+for (let x = 0; x < width1; x += 40) {
+    svg1.append("line")
+        .attr("x1", x).attr("y1", 0)
+        .attr("x2", x).attr("y2", height1)
+        .attr("stroke", "#ccc");
+}
+for (let y = 0; y < height1; y += 40) {
+    svg1.append("line")
+        .attr("x1", 0).attr("y1", y)
+        .attr("x2", width1).attr("y2", y)
+        .attr("stroke", "#ccc");
+}
 
-  {id:"earthquake", x:550, y:100},
-  {id:"tsunami", x:500, y:180},
-  {id:"collapse", x:600, y:180},
-  {id:"tremor", x:650, y:260},
-  {id:"shaking", x:700, y:120}
-];
+// example 2 vectors
+const v1 = {x: 280, y:100}; // eα1
+const v2 = {x: 160, y:60};  // eα2
 
-// simple links
-const links2 = [
-  ["strike","protest"],["strike","crowd"],["riot","protest"],["riot","crowd"],
+// arrow function
+function drawArrow(x1,y1,x2,y2,color){
+  svg1.append("line")
+      .attr("x1",x1).attr("y1",y1)
+      .attr("x2",x1).attr("y2",y1)
+      .attr("stroke",color).attr("stroke-width",2)
+      .transition().duration(1000)
+      .attr("x2",x2).attr("y2",y2);
+}
 
-  ["earthquake","tsunami"],["earthquake","shaking"],["tsunami","collapse"],
-  ["collapse","tremor"],["shaking","tremor"]
-];
+// transition: arrow grows
+drawArrow(200,120, v1.x,v1.y,"#224");
+drawArrow(200,120, v2.x,v2.y,"#2aa");
 
-// draw links
-links2.forEach(function(l){
-  const a = words.find(w=>w.id===l[0]);
-  const b = words.find(w=>w.id===l[1]);
-  svg2.append("line")
-     .attr("x1",a.x).attr("y1",a.y)
-     .attr("x2",b.x).attr("y2",b.y)
-     .attr("stroke","#1864ab")
-     .attr("stroke-width",2)
-     .attr("stroke-dasharray","5 3");
-});
-
-// draw nodes
-svg2.selectAll("text")
-  .data(words)
-  .enter()
-  .append("text")
-  .text(d=>d.id)
-  .attr("x",d=>d.x)
-  .attr("y",d=>d.y)
-  .attr("font-size","16px")
-  .attr("font-family","Arial")
-  .attr("fill","#1864ab");
-
-</script>
-<!-- ================= Chart 4 ================= -->
-
-<h2 style="margin-top:40px;">Chart 4 – Cluster Scatter</h2>
-<div id="chart4" class="card"></div>
-
-<script>
-// Chart4 – 2 clusters of scatter points
-
-const width4 = 880, height4 = 400;
-const svg4 = d3.select("#chart4")
-  .append("svg")
-  .attr("width", width4)
-  .attr("height", height4);
-
-// 2 clusters
-const clusterA = d3.range(30).map(()=>({x:200 + Math.random()*60, y:180 + Math.random()*60}));
-const clusterB = d3.range(30).map(()=>({x:550 + Math.random()*60, y:180 + Math.random()*60}));
-
-const points4 = clusterA.concat(clusterB);
-
-// draw points
-svg4.selectAll("circle")
-   .data(points4)
-   .enter()
-   .append("circle")
-   .attr("cx",d=>d.x)
-   .attr("cy",d=>d.y)
-   .attr("r",4)
-   .attr("fill","#1864ab")
-   .attr("opacity",0.8)
+// interaction: highlight grid when hover
+svg1.selectAll("line")
    .on("mouseover",function(){
-      d3.select(this).transition().duration(150).attr("r",10);
+       d3.select(this).attr("stroke","orange");
    })
    .on("mouseout",function(){
-      d3.select(this).transition().duration(150).attr("r",4);
+       d3.select(this).attr("stroke","#ccc");
    });
-
 </script>
-    
-<div class="note-block">
-  <h3>Notes for Chart 2 — Word Network</h3>
-  <p>
-    This chart replicates the “word network” reference visual. I created two clusters of related words based on the original sample image from the slides.
-  </p>
-  <p>
-    Each word is positioned manually using x/y coordinates. Then I used D3.js to draw dashed lines between related words.
-  </p>
-  <p>
-    This chart satisfies the requirement of “at least one D3 interaction per chart” by drawing the lines with dashed style and organized into two semantic clusters.
-  </p>
-</div>
-    
-<div class="note-block">
-  <h3>Notes for Chart 4 – Cluster Scatter</h3>
-  <p>This chart replicates the “cluster scatter” visual. Two clusters of points were generated. Each cluster is jittered within a box.</p>
-  <p>Hover interaction enlarges each point, satisfying the “at least one D3 interaction per chart” requirement.</p>
-</div>
-    
-<h2 style="margin-top:40px;">Chart 3 – Optimization Route</h2>
-<div id="chart3" class="card"></div>
-    <script>
-
-// chart3 basic demo lines only -- simplified
-const w3 = 880, h3 = 400;
-const svg3 = d3.select("#chart3")
-  .append("svg")
-  .attr("width", w3)
-  .attr("height", h3);
-
-// simple polyline path
-const route = [
-  {x:200,y:350}, {x:220,y:300}, {x:250,y:250}, {x:300,y:200},
-  {x:350,y:180}, {x:400,y:200}, {x:450,y:220}, {x:500,y:230},
-  {x:550,y:240}, {x:600,y:245}, {x:650,y:250}
-];
-
-// draw route
-svg3.append("path")
-  .attr("fill","none")
-  .attr("stroke","#1864ab")
-  .attr("stroke-width",2)
-  .attr("stroke-dasharray","5 3")
-  .attr("d", d3.line().x(d=>d.x).y(d=>d.y)(route));
-
-</script>
-<div class="note-block">
-  <h3>Notes for Chart 3 – Optimisation Route</h3>
-  <p>
-    This chart replicates the “optimisation route” visual given by the instructor.
-    The visual shows a search path starting from a random initial point, gradually
-    moving through the space and ending near an optimised point.
-  </p>
-  <p>
-    I used D3.js to draw a polyline to represent the route. I manually positioned
-    each coordinate to approximate the curve shape in the reference. I used dashed
-    style to reflect the dotted route appearance.
-  </p>
-  <p>
-    This chart satisfies the “at least one D3 interaction per chart” requirement,
-    because the lines are drawn programmatically using D3 path functions.
-  </p>
-</div>
-
-</body>
-</html>
