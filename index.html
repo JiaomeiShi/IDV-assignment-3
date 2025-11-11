@@ -6,19 +6,27 @@
   <title>IDV Assignment 3 — Jiaomei Shi</title>
 
   <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans","PingFang SC","Microsoft YaHei",sans-serif;background:#eef4f4;margin:0;padding:32px;}
-    h1{margin:0 0 8px 0;}
-    .note{color:#4b5563;margin:0 0 24px 0}
-    .card{background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.06);padding:20px;margin-bottom:28px}
-    .note-block{margin:40px 0;}
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #eef4f4;
+      margin: 0;
+      padding: 32px;
+    }
+    h1 { margin: 0 0 8px 0; }
+    .note { color: #4b5563; margin: 0 0 24px 0; }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.06);
+      padding: 20px;
+      margin-bottom: 28px;
+    }
+    .note-block { margin: 40px 0; }
   </style>
-
 </head>
 <body>
 
 <h1>IDV Assignment 3 — Jiaomei Shi</h1>
-
-<!-- D3 -->
 <script src="https://d3js.org/d3.v7.min.js"></script>
 
 <!-- ================= Chart 1 ================= -->
@@ -27,13 +35,13 @@
 
 <script>
 const width1 = 880, height1 = 400;
-const svg1 = d3.select("#chart1").append("svg").attr("width",width1).attr("height",height1);
+const svg1 = d3.select("#chart1").append("svg").attr("width", width1).attr("height", height1);
 
 // grid
 for(let x=0;x<=width1;x+=50){svg1.append("line").attr("x1",x).attr("y1",0).attr("x2",x).attr("y2",height1).attr("stroke","#d0d0d0");}
 for(let y=0;y<=height1;y+=50){svg1.append("line").attr("x1",0).attr("y1",y).attr("x2",width1).attr("y2",y).attr("stroke","#d0d0d0");}
 
-// pts
+// points
 const pts1=[
  {x:300,y:100,l:"e¹α"},
  {x:200,y:120,l:"e²α"},
@@ -42,26 +50,22 @@ const pts1=[
 ];
 
 svg1.selectAll("circle").data(pts1).enter().append("circle")
- .attr("cx",d=>d.x).attr("cy",d=>d.y).attr("r",5).attr("fill","#1b4393");
-// Chart1: circles enter + hover
-svg1.selectAll("circle")
-  .transition().duration(800).attr("r", 8);
+ .attr("cx",d=>d.x).attr("cy",d=>d.y).attr("r",5).attr("fill","#1b4393")
+ .transition().duration(800).attr("r",8);
 
 svg1.selectAll("circle")
-  .on("mouseover", function(){ d3.select(this).transition().duration(150).attr("r", 12); })
-  .on("mouseout",  function(){ d3.select(this).transition().duration(150).attr("r", 8);  });
+ .on("mouseover",function(){d3.select(this).transition().duration(150).attr("r",12);})
+ .on("mouseout",function(){d3.select(this).transition().duration(150).attr("r",8);});
 
 svg1.selectAll("text").data(pts1).enter().append("text")
- .attr("x",d=>d.x+6).attr("y",d=>d.y-6).text(d=>d.l).style("font-size","20px").style("font-family","Georgia");
-// Chart1: labels fade in
-svg1.selectAll("text")
-  .style("opacity", 0)
-  .transition().delay(400).duration(600)
-  .style("opacity", 1);
+ .attr("x",d=>d.x+6).attr("y",d=>d.y-6).text(d=>d.l)
+ .style("font-size","20px").style("font-family","Georgia")
+ .style("opacity",0).transition().delay(400).duration(600).style("opacity",1);
 
 // arrow head
 svg1.append("defs").append("marker")
- .attr("id","arrow1").attr("viewBox","0 0 10 10").attr("refX",9).attr("refY",5).attr("markerWidth",6).attr("markerHeight",6).attr("orient","auto-start-reverse")
+ .attr("id","arrow1").attr("viewBox","0 0 10 10").attr("refX",9).attr("refY",5)
+ .attr("markerWidth",6).attr("markerHeight",6).attr("orient","auto-start-reverse")
  .append("path").attr("d","M 0 0 L 10 5 L 0 10 z").attr("fill","#1d4e89");
 
 // links
@@ -76,7 +80,8 @@ links1.forEach(l=>{
  svg1.append("line")
  .attr("x1",l.from.x).attr("y1",l.from.y)
  .attr("x2",l.from.x).attr("y2",l.from.y)
- .attr("stroke","#1d4e89").attr("stroke-width",2).attr("stroke-dasharray","6 4").attr("marker-end","url(#arrow1)")
+ .attr("stroke","#1d4e89").attr("stroke-width",2)
+ .attr("stroke-dasharray","6 4").attr("marker-end","url(#arrow1)")
  .on("mouseover",function(){d3.select(this).transition().duration(150).attr("stroke-width",5);})
  .on("mouseout",function(){d3.select(this).transition().duration(150).attr("stroke-width",2);})
  .transition().duration(800)
@@ -86,9 +91,11 @@ links1.forEach(l=>{
 
 <div class="note-block">
   <h3>Notes for Chart 1 — Vector Space</h3>
-  <p>This chart replicates the vector space from reference. Grid is simplified. Four basis vectors placed manually.</p>
-  <p>Dashed vector lines drawn with marker-end arrow. On hover the stroke width increases (required D3 interaction).</p>
+  <p><strong>Observation:</strong> The reference chart shows a two-dimensional vector space with four labeled basis vectors and directional arrows.</p>
+  <p><strong>Implementation:</strong> I used D3.js to draw an SVG grid and manually placed four basis points. Dashed lines with arrow markers were created using <code>line</code> elements. Each line animates on load and thickens on hover to fulfill the interaction requirement.</p>
+  <p><strong>Reflection:</strong> This chart helped me understand how D3 manages coordinates and vector direction visually. Smooth transitions make relationships clearer and more dynamic.</p>
 </div>
+
 <!-- ================= Chart 2 ================= -->
 <h2 style="margin-top:40px;">Chart 2 — Word Network</h2>
 <div id="chart2" class="card"></div>
@@ -121,26 +128,22 @@ links2.forEach(l=>{
  svg2.append("line")
  .attr("x1",a.x).attr("y1",a.y)
  .attr("x2",b.x).attr("y2",b.y)
- .attr("stroke","#1864ab").attr("stroke-width",2).attr("stroke-dasharray","5 3");
+ .attr("stroke","#1864ab").attr("stroke-width",2).attr("stroke-dasharray","5 3")
+ .on("mouseover",function(){d3.select(this).transition().duration(120).attr("stroke-width",4);})
+ .on("mouseout",function(){d3.select(this).transition().duration(120).attr("stroke-width",2);});
 });
-.on("mouseover", function(){ d3.select(this).transition().duration(120).attr("stroke-width",4); })
-.on("mouseout",  function(){ d3.select(this).transition().duration(120).attr("stroke-width",2); });
 
-svg2.selectAll("text")
-.data(words2).enter().append("text")
-.text(d=>d.id).attr("x",d=>d.x).attr("y",d=>d.y)
-.style("font-size","16px").style("fill","#1864ab");
+svg2.selectAll("text").data(words2).enter().append("text")
+ .text(d=>d.id).attr("x",d=>d.x).attr("y",d=>d.y)
+ .style("font-size","16px").style("fill","#1864ab")
+ .style("opacity",0).transition().duration(600).style("opacity",1);
 </script>
-// Chart2: word labels fade in
-svg2.selectAll("text")
-  .style("opacity", 0)
-  .transition().duration(600)
-  .style("opacity", 1);
 
 <div class="note-block">
- <h3>Notes for Chart 2 — Word Network</h3>
- <p>Replicates two word clusters. Positions manually set using x/y.</p>
- <p>Dashed edges drawn in D3. This satisfies interaction requirement.</p>
+  <h3>Notes for Chart 2 — Word Network</h3>
+  <p><strong>Observation:</strong> The reference diagram connects semantically related words into two clusters, forming a visual network.</p>
+  <p><strong>Implementation:</strong> Each word is manually positioned with <code>x/y</code> coordinates and connected by dashed lines. Hovering over edges thickens them, and all labels fade in on load.</p>
+  <p><strong>Reflection:</strong> This visualization shows how D3 can organize semantic data spatially. Even minimal transitions improve clarity and engagement.</p>
 </div>
 
 <!-- ================= Chart 3 ================= -->
@@ -157,23 +160,24 @@ const route3=[
  {x:550,y:240},{x:600,y:245},{x:650,y:250}
 ];
 
-svg3.append("path")
+const path3 = svg3.append("path")
  .attr("fill","none").attr("stroke","#1864ab").attr("stroke-width",2).attr("stroke-dasharray","5 3")
  .attr("d",d3.line().x(d=>d.x).y(d=>d.y)(route3));
+
+const L3 = path3.node().getTotalLength();
+path3.attr("stroke-dasharray", L3 + " " + L3)
+ .attr("stroke-dashoffset", L3)
+ .transition().duration(1200).ease(d3.easeCubicInOut)
+ .attr("stroke-dashoffset", 0);
 </script>
-// Chart3: draw path with stroke-dash animation
-const p3 = svg3.select("path");
-const L3 = p3.node().getTotalLength();
-p3.attr("stroke-dasharray", L3 + " " + L3)
-  .attr("stroke-dashoffset", L3)
-  .transition().duration(1200).ease(d3.easeCubicInOut)
-  .attr("stroke-dashoffset", 0);
 
 <div class="note-block">
- <h3>Notes for Chart 3 — Optimization Route</h3>
- <p>Polyline approximates search path. Dashed style to match reference.</p>
- <p>Satisfies requirement by using D3 path functions + custom coordinates.</p>
+  <h3>Notes for Chart 3 — Optimization Route</h3>
+  <p><strong>Observation:</strong> This chart visualizes a gradual optimization path moving toward a target point.</p>
+  <p><strong>Implementation:</strong> I drew a dashed polyline using <code>d3.line()</code> and animated it using stroke-dash transitions, creating a self-drawing route.</p>
+  <p><strong>Reflection:</strong> This helped me practice D3 path animation. The progressive reveal effectively communicates direction and iteration in optimization processes.</p>
 </div>
+
 <!-- ================= Chart 4 ================= -->
 <h2 style="margin-top:40px;">Chart 4 — Cluster Scatter</h2>
 <div id="chart4" class="card"></div>
@@ -186,23 +190,19 @@ const cA=d3.range(30).map(()=>({x:200+Math.random()*60,y:180+Math.random()*60}))
 const cB=d3.range(30).map(()=>({x:550+Math.random()*60,y:180+Math.random()*60}));
 const pts4=cA.concat(cB);
 
-svg4.selectAll("circle")
-.data(pts4).enter().append("circle")
-.attr("cx",d=>d.x).attr("cy",d=>d.y).attr("r",4).attr("fill","#7e57c2").attr("opacity",0)
-.on("mouseover",function(){d3.select(this).transition().duration(120).attr("r",10);})
-.on("mouseout",function(){d3.select(this).transition().duration(120).attr("r",4);});
-// Chart4: scatter points entrance (drop + fade)
-svg4.selectAll("circle")
-  .attr("cy", d => d.y - 20)
-  .transition().duration(600)
-  .attr("cy", d => d.y)
-  .attr("opacity", 0.85);
+svg4.selectAll("circle").data(pts4).enter().append("circle")
+ .attr("cx",d=>d.x).attr("cy",d=>d.y).attr("r",4).attr("fill","#7e57c2").attr("opacity",0)
+ .on("mouseover",function(){d3.select(this).transition().duration(120).attr("r",10);})
+ .on("mouseout",function(){d3.select(this).transition().duration(120).attr("r",4);})
+ .attr("cy",d=>d.y-20)
+ .transition().duration(600).attr("cy",d=>d.y).attr("opacity",0.85);
 </script>
 
 <div class="note-block">
- <h3>Notes for Chart 4 — Cluster Scatter</h3>
- <p>Two clusters are randomly generated and positioned with slight jitter.</p>
- <p>Hover grows circle to show interaction.</p>
+  <h3>Notes for Chart 4 — Cluster Scatter</h3>
+  <p><strong>Observation:</strong> The reference scatter plot depicts two distinct data clusters to illustrate grouping or similarity.</p>
+  <p><strong>Implementation:</strong> I generated two random clusters with slight jitter. Each point drops in from above while fading in. Hovering enlarges the circles to highlight interactivity.</p>
+  <p><strong>Reflection:</strong> This chart shows how motion adds liveliness to static scatter plots. The transitions make the clustering pattern immediately perceptible.</p>
 </div>
 
 <!-- ================= Chart 5 ================= -->
@@ -213,31 +213,41 @@ svg4.selectAll("circle")
 const width5=880,height5=400;
 const svg5=d3.select("#chart5").append("svg").attr("width",width5).attr("height",height5);
 
-// left bars (very close L1)
+// left bars
 svg5.append("rect").attr("x",200).attr("y",200).attr("width",30).attr("height",150).attr("fill","#b79dd6");
 svg5.append("rect").attr("x",235).attr("y",150).attr("width",30).attr("height",200).attr("fill","#b79dd6");
-
 svg5.append("text").attr("x",200).attr("y",380).text("i/n").style("font-size","14px");
 svg5.append("text").attr("x",235).attr("y",380).text("(i+Δn)/n").style("font-size","14px");
 svg5.append("text").attr("x",280).attr("y",380).text("1").style("font-size","14px");
 
-// right two green lines
+// right two lines
 const line1=[{x:500,y:120},{x:650,y:140},{x:800,y:200}];
-svg5.append("path") .classed("plot-line", true)
-  .attr("fill","none").attr("stroke","#3b7e3b").attr("stroke-width",3)
-  .attr("d",d3.line().x(d=>d.x).y(d=>d.y)(line1));.attr("fill","none").attr("stroke","#3b7e3b").attr("stroke-width",3)
+svg5.append("path").classed("plot-line",true)
+ .attr("fill","none").attr("stroke","#3b7e3b").attr("stroke-width",3)
  .attr("d",d3.line().x(d=>d.x).y(d=>d.y)(line1));
 
 const line2=[{x:500,y:200},{x:650,y:260},{x:800,y:300}];
-svg5.append("path").attr("fill","none").attr("stroke","#a8d5a2").attr("stroke-width",2).attr("stroke-dasharray","5 5")
+svg5.append("path").classed("plot-line",true)
+ .attr("fill","none").attr("stroke","#a8d5a2").attr("stroke-width",2)
+ .attr("stroke-dasharray","5 5")
  .attr("d",d3.line().x(d=>d.x).y(d=>d.y)(line2));
+
+// animate both lines
+svg5.selectAll("path.plot-line").each(function(_,i){
+ const p=d3.select(this);
+ const L=this.getTotalLength();
+ p.attr("stroke-dasharray",L+" "+L)
+  .attr("stroke-dashoffset",L)
+  .transition().delay(i*200).duration(1000)
+  .attr("stroke-dashoffset",0);
+});
 </script>
 
 <div class="note-block">
- <h3>Notes for Chart 5 — Mixed Math Plots</h3>
- <p>This chart matches reference: left mini-bars show baseline and Δn shift.</p>
- <p>Right side has two line plots: solid + dashed (C1 green scheme).</p>
- <p>D3 draws shapes + path. Satisfies chart requirement.</p>
+  <h3>Notes for Chart 5 — Mixed Math Plots</h3>
+  <p><strong>Observation:</strong> The chart combines discrete and continuous mathematical visualizations: small bars on the left and continuous curves on the right.</p>
+  <p><strong>Implementation:</strong> Bars represent discrete steps with Δn shift. Two right-side curves are drawn as solid and dashed lines in a green scheme, animated progressively using stroke-dash offset transitions.</p>
+  <p><strong>Reflection:</strong> This exercise showed how D3 can represent both discrete and continuous functions in one SVG canvas. Gradual animation adds rhythm and continuity to mathematical visualization.</p>
 </div>
 
 </body>
