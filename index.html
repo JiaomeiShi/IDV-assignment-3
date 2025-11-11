@@ -1,410 +1,188 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>IDV Assignment 3 — Jiaomei Shi</title>
   <style>
-    :root{
-      --bg:#e8f0ef; --card:#fff; --ink:#0f172a; --muted:#4b5563;
-      --brand:#1864ab; --accent:#7e57c2; --ok:#3b7e3b; --ok2:#a8d5a2;
-      --warm:#f0d77a; --grid:#d7dde0;
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #eef4f4;
+      margin: 0;
+      padding: 32px;
     }
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans","PingFang SC","Microsoft YaHei",sans-serif}
-    main{padding:32px 28px 80px;max-width:1100px;margin:0 auto}
-    h1{margin:0 0 8px;font-weight:700}
-    h2{margin:40px 0 12px}
-    .lead{color:var(--muted);margin:0 0 24px}
-    .card{background:var(--card);border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,.06);
-      padding:18px;margin:0 0 18px;overflow:auto}
-    .note{margin:10px 0 24px;color:var(--ink);line-height:1.55}
-    .muted{color:var(--muted)}
-    .pill{display:inline-block;font:12px/1.8 system-ui;padding:2px 10px;border-radius:999px;
-      background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;margin-left:6px}
-    .placeholder{padding:28px;text-align:center;border:1px dashed #cbd5e1;border-radius:12px;background:#fafafa}
-    .legend{display:flex;gap:14px;align-items:center;margin-top:8px}
-    .k{width:10px;height:10px;border-radius:2px;display:inline-block}
-    .k-line{width:22px;height:0;border-top:3px solid var(--ink);display:inline-block}
-    footer{margin-top:44px;color:var(--muted)}
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace}
+    h1 { margin: 0 0 8px 0; }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.06);
+      padding: 20px;
+      margin-bottom: 28px;
+    }
+    .note-block { margin: 40px 0; color: #374151; }
   </style>
-</head>
-<body>
-<main>
-  <h1>IDV Assignment 3 — Jiaomei Shi <span class="pill">5 D3.js replications + notes</span></h1>
-  <p class="lead">I replicated five charts in D3.js with at least one transition and one interaction each, and listed the remaining seven as references to cover all twelve.</p>
-
-  <!-- D3 -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
 
-  <!-- ===================== CHART 6 (SCHEMATIC) ===================== -->
-  <h2>Chart 6 — Schematic (Transformer-like layout)</h2>
-  <div id="c6" class="card"></div>
-  <p class="note">
-    A compact schematic inspired by the reference: token/positional embeddings stack feeds into a decoder-only block,
-    with a small “classification layer + tiny bars” head. Rectangles slide-in (transition) and
-    each module highlights on hover (interaction). The exact sizes/values are illustrative rather than precise.
-  </p>
-  <script>
-    (function(){
-      const w=1020,h=360, pad=28;
-      const svg=d3.select("#c6").append("svg").attr("width",w).attr("height",h);
+<body>
+<h1>IDV Assignment 3 — Jiaomei Shi</h1>
 
-      // helper
-      const box=(x,y,w,h,r=10)=>svg.append("rect")
-        .attr("x",x).attr("y",y).attr("rx",r).attr("ry",r)
-        .attr("width",w).attr("height",h)
-        .attr("fill","#fff").attr("stroke","#94a3b8").attr("stroke-width",1.5)
-        .style("filter","drop-shadow(0 2px 3px rgba(15,23,42,.08))");
+<!-- ================= Chart 6 ================= -->
+<h2 style="margin-top:40px;">Chart 6 — Transformer Schematic</h2>
+<div id="chart6" class="card"></div>
+<script>
+const w6 = 880, h6 = 420;
+const svg6 = d3.select("#chart6").append("svg").attr("width", w6).attr("height", h6);
 
-      // embeddings rows
-      function tinyBlocks(gx,gy, n=8, c="#9ca3af"){
-        const g=svg.append("g");
-        for(let i=0;i<n;i++){
-          g.append("rect").attr("x",gx+i*20).attr("y",gy).attr("width",16).attr("height",12)
-           .attr("fill",c).attr("rx",2).attr("ry",2).attr("opacity",0)
-           .transition().delay(100+i*40).duration(400).attr("opacity",1);
-        }
-        return g;
-      }
+// background layers
+svg6.append("rect").attr("x",50).attr("y",60).attr("width",780).attr("height",300).attr("fill","#f9fafb").attr("stroke","#cbd5e1");
+svg6.append("text").attr("x",70).attr("y",90).text("Transformer Encoder-Decoder Architecture").attr("font-weight","bold");
 
-      // token embeddings (bottom)
-      tinyBlocks(pad+90, h-90, 6, "#b6c3cf");
-      tinyBlocks(pad+210, h-90, 6, "#b6c3cf");
-      tinyBlocks(pad+330, h-90, 6, "#b6c3cf");
+// encoder boxes
+const encs = ["Embedding","Positional Encoding","Multi-Head Attention","Feed Forward"];
+encs.forEach((t,i)=>{
+  svg6.append("rect").attr("x",100).attr("y",120+i*45).attr("width",200).attr("height",30)
+      .attr("fill","#dbeafe").attr("stroke","#2563eb");
+  svg6.append("text").attr("x",200).attr("y",140+i*45).text(t).attr("text-anchor","middle").attr("alignment-baseline","middle");
+});
 
-      // positional embeddings indicators
-      const pos=svg.append("g");
-      [0,1,2].forEach((i)=>{
-        pos.append("rect").attr("x",pad+90+i*120).attr("y",h-130).attr("width",48).attr("height",14)
-          .attr("fill","#e2e8f0").attr("stroke","#94a3b8").attr("rx",3).attr("opacity",0)
-          .transition().delay(300+i*150).duration(450).attr("opacity",1);
-        pos.append("text").attr("x",pad+104+i*120).attr("y",h-110).text(i)
-          .attr("fill","#475569").attr("font-size",12).attr("opacity",0)
-          .transition().delay(450+i*150).duration(400).attr("opacity",1);
-      });
+// decoder boxes
+const decs = ["Masked Multi-Head Attention","Encoder-Decoder Attention","Feed Forward","Classification Head"];
+decs.forEach((t,i)=>{
+  svg6.append("rect").attr("x",480).attr("y",120+i*45).attr("width",230).attr("height",30)
+      .attr("fill","#dcfce7").attr("stroke","#16a34a");
+  svg6.append("text").attr("x",595).attr("y",140+i*45).text(t).attr("text-anchor","middle").attr("alignment-baseline","middle");
+});
 
-      // decoder block
-      const dec=box(pad+70, 90, 520, 140, 14).attr("fill","#f8fafc");
-      const layers=[
-        {y:120, txt:"Multi-head Masked Self-Attention"},
-        {y:150, txt:"Feed Forward Neural Network"},
-        {y:180, txt:"Decoder-Only Layer"}
-      ];
-      layers.forEach((row,i)=>{
-        svg.append("rect").attr("x",pad+90).attr("y",row.y).attr("width",480).attr("height",18)
-          .attr("fill","none").attr("stroke","#cbd5e1").attr("stroke-dasharray","6 6").attr("opacity",0)
-          .transition().delay(400+i*160).duration(500).attr("opacity",1);
-        svg.append("text").attr("x",pad+100).attr("y",row.y+13).text(row.txt)
-          .attr("font-size",12).attr("fill","#334155").attr("opacity",0)
-          .transition().delay(520+i*160).duration(400).attr("opacity",1);
-      });
+// arrows
+svg6.selectAll(".arrow")
+  .data([
+    {x1:300,y1:135,x2:480,y2:135},
+    {x1:300,y1:180,x2:480,y2:180},
+    {x1:300,y1:225,x2:480,y2:225},
+    {x1:300,y1:270,x2:480,y2:270}
+  ])
+  .enter().append("line")
+  .attr("x1",d=>d.x1).attr("y1",d=>d.y1)
+  .attr("x2",d=>d.x1).attr("y2",d=>d.y1)
+  .attr("stroke","#64748b").attr("stroke-width",2)
+  .transition().duration(800)
+  .attr("x2",d=>d.x2).attr("y2",d=>d.y2);
+</script>
 
-      // output embeddings (top strips)
-      tinyBlocks(pad+110, 60, 9, "#93c5fd");
-      tinyBlocks(pad+360, 60, 9, "#93c5fd");
+<div class="note-block">
+  <p>This chart replicates a simplified Transformer architecture, showing data flow between encoder and decoder modules. I used rectangles and connecting arrows to represent components and relationships. The transition animates data passing from encoder to decoder, demonstrating a clear sequential logic of the model pipeline.</p>
+</div>
 
-      // classification head (left)
-      const head = box(pad+620, 40, 180, 56, 10).attr("fill","#fff");
-      svg.append("text").attr("x",pad+710).attr("y",72).text("Classification Layer")
-        .attr("text-anchor","middle").attr("font-size",12).attr("fill","#334155");
-      const bars = svg.append("g");
-      [18,32,22,40,26].forEach((v,i)=>{
-        bars.append("rect").attr("x",pad+636+i*18).attr("y",40-v).attr("width",12).attr("height",v)
-          .attr("fill", i===1? "#f4b4c6":"#9bd2c7").attr("opacity",0)
-          .transition().delay(300+i*120).duration(400).attr("opacity",1);
-      });
-      svg.append("text").attr("x",pad+676).attr("y",20).text("Tag")
-        .attr("font-size",14).attr("fill","#cc7d92");
+<!-- ================= Chart 7 ================= -->
+<h2 style="margin-top:40px;">Chart 7 — Three-Set Venn Diagram</h2>
+<div id="chart7" class="card"></div>
+<script>
+const w7=880,h7=400;
+const svg7=d3.select("#chart7").append("svg").attr("width",w7).attr("height",h7);
 
-      // right mini-head (faded "baseline")
-      const head2 = box(pad+840, 40, 180, 56, 10).attr("fill","#fff").attr("opacity",0.35);
-      svg.append("text").attr("x",pad+930).attr("y",72).text("Classification Layer")
-        .attr("text-anchor","middle").attr("font-size",12).attr("fill","#94a3b8");
+const circles=[
+  {x:320,y:200,r:120,c:"#fca5a5",label:"Delete"},
+  {x:460,y:200,r:120,c:"#93c5fd",label:"Replace"},
+  {x:390,y:320,r:120,c:"#86efac",label:"Rewrite"}
+];
+svg7.selectAll("circle").data(circles).enter().append("circle")
+.attr("cx",d=>d.x).attr("cy",d=>d.y).attr("r",d=>d.r)
+.attr("fill",d=>d.c).attr("opacity",0.4)
+.on("mouseover",function(){d3.select(this).transition().duration(150).attr("opacity",0.7);})
+.on("mouseout",function(){d3.select(this).transition().duration(150).attr("opacity",0.4);});
 
-      // labels
-      svg.append("text").attr("x",pad).attr("y",h-40).text("Input Sequence").attr("font-size",13).attr("fill","#334155");
-      svg.append("text").attr("x",pad).attr("y",h-120).text("Positional Embeddings").attr("font-size",13).attr("fill","#334155");
-      svg.append("text").attr("x",pad).attr("y",76).text("Output Token Embeddings").attr("font-size",13).attr("fill","#334155");
+svg7.selectAll("text").data(circles).enter().append("text")
+.text(d=>d.label).attr("x",d=>d.x).attr("y",d=>d.y)
+.attr("text-anchor","middle").attr("font-size","18px").attr("fill","#111827").attr("dy",".3em");
+</script>
 
-      // interactions: highlight module on hover
-      [dec, head, head2].forEach(el=>{
-        el.on("mouseover", ()=> el.transition().duration(150).attr("stroke","#0ea5e9").attr("stroke-width",2.5))
-          .on("mouseout",  ()=> el.transition().duration(150).attr("stroke","#94a3b8").attr("stroke-width",1.5));
-      });
-    })();
-  </script>
+<div class="note-block">
+  <p>This Venn diagram visualizes relationships among three text operation categories: Delete, Replace, and Rewrite. Semi-transparent circles highlight overlaps, while hover effects emphasize interrelations. It demonstrates D3’s ability to render abstract logical relations with geometric primitives.</p>
+</div>
 
-  <!-- ===================== CHART 7 (VENN) ===================== -->
-  <h2>Chart 7 — Venn (3 sets)</h2>
-  <div id="c7" class="card"></div>
-  <p class="note">
-    Three translucent sets labelled <em>Replace</em>, <em>Delete</em>, <em>Rewrite</em>. Circles grow from zero (transition).
-    Hover over any circle to increase opacity and bring it to front (interaction). Roman numerals indicate regions for quick reading.
-  </p>
-  <script>
-    (function(){
-      const w=900,h=420; const svg=d3.select("#c7").append("svg").attr("width",w).attr("height",h);
-      const cx=[420,300,560], cy=[210,250,250], r=[160,190,190];
-      const colors=["#eab8d0","#c9c6f5","#f5e39a"];
+<!-- ================= Chart 8 ================= -->
+<h2 style="margin-top:40px;">Chart 8 — Cross-Validation Accuracy</h2>
+<div id="chart8" class="card"></div>
+<script>
+const w8=880,h8=400,m8={t:30,r:30,b:40,l:60};
+const svg8=d3.select("#chart8").append("svg").attr("width",w8).attr("height",h8);
+const data8=[
+ {model:"BERT",acc:92.4,base:89.5},
+ {model:"RoBERTa",acc:94.1,base:91.0},
+ {model:"BART",acc:93.2,base:90.2}
+];
+const x8=d3.scaleBand().domain(data8.map(d=>d.model)).range([m8.l,w8-m8.r]).padding(0.5);
+const y8=d3.scaleLinear().domain([85,96]).range([h8-m8.b,m8.t]);
+svg8.append("g").attr("transform",`translate(0,${h8-m8.b})`).call(d3.axisBottom(x8));
+svg8.append("g").attr("transform",`translate(${m8.l},0)`).call(d3.axisLeft(y8));
+svg8.selectAll(".ghost").data(data8).enter().append("rect")
+ .attr("x",d=>x8(d.model)+x8.bandwidth()/2).attr("y",d=>y8(d.base))
+ .attr("width",x8.bandwidth()/2).attr("height",d=>y8(85)-y8(d.base))
+ .attr("fill","none").attr("stroke","#64748b").attr("stroke-dasharray","4 2").attr("opacity",0.6);
+svg8.selectAll(".bar").data(data8).enter().append("rect")
+ .attr("x",d=>x8(d.model)).attr("y",y8(85))
+ .attr("width",x8.bandwidth()/2).attr("height",0).attr("fill","#3b82f6")
+ .on("mouseover",function(){d3.select(this).transition().duration(150).attr("fill","#1d4ed8");})
+ .on("mouseout",function(){d3.select(this).transition().duration(150).attr("fill","#3b82f6");})
+ .transition().delay((_,i)=>200+i*200).duration(800)
+ .attr("y",d=>y8(d.acc)).attr("height",d=>y8(85)-y8(d.acc));
+svg8.selectAll(".val").data(data8).enter().append("text")
+ .attr("x",d=>x8(d.model)+20).attr("y",d=>y8(d.acc)-6)
+ .text(d=>d.acc.toFixed(1)).attr("font-size","13px").attr("fill","#111827");
+</script>
 
-      const groups = ["Replace","Delete","Rewrite"];
-      svg.selectAll(".ttl").data(groups).enter().append("text")
-        .attr("class","ttl").attr("x",(d,i)=> i===0? 420 : (i===1? 210:720))
-        .attr("y",40).attr("text-anchor","middle").text(d=>d).attr("font-size",18).attr("fill","#334155");
+<div class="note-block">
+  <p>This bar chart compares cross-validation accuracies among three NLP models. The dashed outlines represent baseline scores, while solid bars indicate improved results. Bars animate upward, and hovering changes color for interactivity. This chart exemplifies D3’s data-binding and transition techniques for performance comparison.</p>
+</div>
 
-      const g=svg.append("g");
-      const cs=g.selectAll("circle").data([0,1,2]).enter().append("circle")
-        .attr("cx",(i)=>cx[i]).attr("cy",(i)=>cy[i]).attr("r",0)
-        .attr("fill",(i)=>colors[i]).attr("opacity",.55);
-      cs.transition().delay((i)=>200+i*120).duration(600).attr("r",(i)=>r[i]);
-      cs.on("mouseover", function(){d3.select(this).raise().transition().duration(150).attr("opacity",.8);})
-        .on("mouseout", function(){d3.select(this).transition().duration(150).attr("opacity",.55);});
+<!-- ================= Chart 9 ================= -->
+<h2 style="margin-top:40px;">Chart 9 — Sketch Line Animation</h2>
+<div id="chart9" class="card"></div>
+<script>
+const w9=880,h9=400;
+const svg9=d3.select("#chart9").append("svg").attr("width",w9).attr("height",h9);
+const path9="M100,200 C200,100 400,100 500,200 S800,300 780,180";
+const p9=svg9.append("path").attr("d",path9).attr("fill","none")
+  .attr("stroke","#9333ea").attr("stroke-width",3)
+  .attr("stroke-dasharray","1000").attr("stroke-dashoffset","1000");
+p9.transition().duration(2000).ease(d3.easeCubicInOut).attr("stroke-dashoffset",0);
+</script>
 
-      // region numerals (approx)
-      const nums=[
-        {x:260,y:300,t:"I"}, {x:430,y:160,t:"II"}, {x:700,y:300,t:"III"},
-        {x:350,y:250,t:"IV"}, {x:520,y:230,t:"V"}, {x:520,y:300,t:"VI"},
-        {x:490,y:270,t:"VII"}
-      ];
-      svg.selectAll(".n").data(nums).enter().append("text").attr("class","n")
-        .attr("x",d=>d.x).attr("y",d=>d.y).text(d=>d.t)
-        .attr("font-size",28).attr("fill","#1f2937").attr("opacity",0)
-        .transition().delay(700).duration(500).attr("opacity",1);
-    })();
-  </script>
+<div class="note-block">
+  <p>This sketch-style chart demonstrates stroke animation along a curved path. By gradually revealing the line using <code>stroke-dasharray</code> and <code>stroke-dashoffset</code>, it simulates hand-drawn motion. Such technique is commonly applied in explanatory graphics, interactive timelines, and animated process illustrations.</p>
+</div>
 
-  <!-- ===================== CHART 8 (BAR) ===================== -->
-  <h2>Chart 8 — Cross Validation Accuracy (simple bars)</h2>
-  <div id="c8" class="card"></div>
-  <div class="legend">
-    <span class="k" style="background:var(--warm)"></span> Solid = reported accuracy
-    <span class="k" style="background:#000;opacity:.35"></span> &nbsp; Dashed outline = baseline
-  </div>
-  <p class="note">
-    A grouped bar with three models. Bars grow from the baseline (transition), and hovering a bar shows a floating value label (interaction).
-    Values are illustrative to match the look-and-feel rather than exact replication.
-  </p>
-  <script>
-    (function(){
-      const data=[
-        {model:"BERT", acc:74.4, base:64.8},
-        {model:"RoBERTa", acc:81.9, base:65.5},
-        {model:"BART", acc:73.1, base:63.5}
-      ];
-      const w=920,h=360, m={t:30,r:30,b:70,l:60};
-      const svg=d3.select("#c8").append("svg").attr("width",w).attr("height",h);
-      const x=d3.scaleBand().domain(data.map(d=>d.model)).range([m.l,w-m.r]).padding(0.32);
-      const y=d3.scaleLinear().domain([0,100]).range([h-m.b,m.t]);
+<!-- ================= Chart 11 ================= -->
+<h2 style="margin-top:40px;">Chart 11 — Two Distributions with Decision Band</h2>
+<div id="chart11" class="card"></div>
+<script>
+const w11=880,h11=400,m11={t:30,r:30,b:40,l:60};
+const svg11=d3.select("#chart11").append("svg").attr("width",w11).attr("height",h11);
+const x11=d3.scaleLinear().domain([-2,5]).range([m11.l,w11-m11.r]);
+const y11=d3.scaleLinear().domain([0,0.4]).range([h11-m11.b,m11.t]);
+function pdf(x,mu,s){return (1/(s*Math.sqrt(2*Math.PI)))*Math.exp(-0.5*((x-mu)/s)**2);}
+const xs=d3.range(-2,5.01,0.02);
+const dataA=xs.map(x=>({x,y:pdf(x,0.2,0.7)}));
+const dataB=xs.map(x=>({x,y:pdf(x,2,0.8)}));
+svg11.append("rect").attr("x",x11(0.9)).attr("y",y11(0.33))
+.attr("width",x11(1.3)-x11(0.9)).attr("height",y11(0)-y11(0.33))
+.attr("fill","#cbd5e1").attr("opacity",0.6);
+svg11.selectAll(".thr").data([0.9,1.3]).enter().append("line")
+.attr("x1",d=>x11(d)).attr("x2",d=>x11(d))
+.attr("y1",y11(0)).attr("y2",y11(0.35))
+.attr("stroke","#475569").attr("stroke-dasharray","6 6");
+const line11=d3.line().x(d=>x11(d.x)).y(d=>y11(d.y)).curve(d3.curveBasis);
+svg11.append("path").datum(dataA).attr("fill","none").attr("stroke","#f59e0b").attr("stroke-width",3).attr("d",line11);
+svg11.append("path").datum(dataB).attr("fill","none").attr("stroke","#059669").attr("stroke-width",3).attr("d",line11);
+</script>
 
-      // axes (minimal)
-      svg.append("g").attr("transform",`translate(0,${h-m.b})`)
-        .call(d3.axisBottom(x)).selectAll("text").style("font-size","16px");
-      svg.append("g").attr("transform",`translate(${m.l},0)`)
-        .call(d3.axisLeft(y).ticks(5)).selectAll("text").style("font-size","12px");
+<div class="note-block">
+  <p>This chart depicts two Gaussian-like distributions representing model outputs for two classes. The shaded gray band between thresholds 0.9–1.3 illustrates an uncertain decision region. D3’s line generator and linear scales were used to draw smooth probability curves. Such visuals are crucial in model calibration and threshold analysis.</p>
+</div>
 
-      // dashed outline baselines
-      svg.selectAll(".ghost").data(data).enter().append("rect").attr("class","ghost")
-        .attr("x",d=>x(d.model)+x.bandwidth()/2+8).attr("width",x.bandwidth()/2-16)
-        .attr("y",d=>y(d.base)).attr("height",d=>y(0)-y(d.base))
-        .attr("fill","none").attr("stroke","#d1a51f").attr("stroke-width",3).attr("stroke-dasharray","8 6")
-        .attr("opacity",0.6);
-
-      // main bars
-      const bars=svg.selectAll(".bar").data(data).enter().append("rect").attr("class","bar")
-        .attr("x",d=>x(d.model)+8).attr("width",x.bandwidth()/2-16)
-        .attr("y",y(0)).attr("height",0).attr("fill","var(--warm)")
-        .on("mousemove", function(e,d){
-          const t=svg.selectAll(".tip").data([d]).join("text").attr("class","tip")
-            .attr("x", x(d.model)+x.bandwidth()/4 + 8).attr("y", y(d.acc)-8)
-            .attr("text-anchor","middle").attr("font-size",14).attr("fill","#111827");
-          t.text(d.acc.toFixed(1));
-        })
-        .on("mouseleave", ()=> svg.selectAll(".tip").remove());
-
-      bars.transition().delay((_,i)=>200+i*200).duration(800)
-        .attr("y",d=>y(d.acc)).attr("height",d=>y(0)-y(d.acc));
-      // === Add value labels for bars and dashed baselines ===
-svg.selectAll(".val-solid")
-  .data(data)
-  .enter()
-  .append("text")
-  .attr("class", "val-solid")
-  .attr("x", d => x(d.model) + x.bandwidth() / 4 + 8)
-  .attr("y", d => y(d.acc) - 6)
-  .text(d => d.acc.toFixed(1))
-  .attr("font-size", "14px")
-  .attr("text-anchor", "middle")
-  .attr("fill", "#334155");
-
-svg.selectAll(".val-dash")
-  .data(data)
-  .enter()
-  .append("text")
-  .attr("class", "val-dash")
-  .attr("x", d => x(d.model) + x.bandwidth() * 0.75 + 8)
-  .attr("y", d => y(d.base) - 6)
-  .text(d => d.base.toFixed(1))
-  .attr("font-size", "14px")
-  .attr("text-anchor", "middle")
-  .attr("fill", "#64748b");
-
-// Make dashed outlines thicker and more visible
-svg.selectAll(".ghost")
-  .attr("stroke-width", 3)
-  .attr("opacity", 0.7);
-    })();
-  </script>
-
-  <!-- ===================== CHART 9 (SKETCH) ===================== -->
-  <h2>Chart 9 — Line Sketch (SVG stroke animation)</h2>
-  <div id="c9" class="card"></div>
-  <p class="note">
-    A simple line-drawing “robot writing” sketch made with a few SVG paths.
-    Strokes are revealed by animating <span class="mono">stroke-dashoffset</span> (transition), and thicken slightly on hover (interaction).
-    This demonstrates how a clean sketch can be delivered directly as vector instructions.
-  </p>
-  <script>
-    (function(){
-      const w=680,h=420;
-      const svg=d3.select("#c9").append("svg").attr("width",w).attr("height",h);
-      svg.style("background","#fff");
-
-      const paths=[
-        // screen box
-        "M420,100 L560,80 L560,190 L420,210 Z",
-        // face frame
-        "M445,115 L535,105 L535,175 L445,185 Z",
-        // eyes + mouth
-        "M462,145 L480,142 M500,137 L520,134 M475,165 L508,160",
-        // body wire
-        "M420,210 C400,250 360,250 340,300",
-        // arm + pen
-        "M360,300 C380,290 410,270 430,260 L455,265",
-        // paper
-        "M470,268 L520,250 L545,272",
-        // bench top
-        "M260,300 L520,300",
-        // bench box
-        "M260,300 L260,400 L520,400 L520,300",
-        // legs
-        "M330,400 C335,420 350,430 360,420",
-        "M460,400 C470,420 490,430 500,420"
-      ];
-
-      const g=svg.append("g").attr("stroke","#334155").attr("stroke-width",2.2).attr("fill","none")
-      paths.forEach((d,i)=>{
-        const p=g.append("path").attr("d",d).attr("stroke-linecap","round").attr("opacity",0.95);
-        const L=p.node().getTotalLength();
-        p.attr("stroke-dasharray",L+" "+L).attr("stroke-dashoffset",L)
-         .transition().delay(120*i).duration(700).ease(d3.easeCubicOut)
-         .attr("stroke-dashoffset",0);
-        p.on("mouseover",()=>p.transition().duration(100).attr("stroke-width",3.4))
-         .on("mouseout", ()=>p.transition().duration(100).attr("stroke-width",2.2));
-      });
-    })();
-  </script>
-
-  <!-- ===================== CHART 11 (FUNCTION) ===================== -->
-  <h2>Chart 11 — Two Distributions with Decision Band</h2>
-  <div id="c11" class="card"></div>
-  <p class="note">
-    Two Gaussian-like curves with a shaded decision band. The curves reveal from left to right (transition). Hover the legend to
-    temporarily dim the other curve (interaction). Gridlines are light to keep focus on shape.
-  </p>
-  <script>
-    (function(){
-      const w=920,h=360,m={t:24,r:24,b:48,l:54};
-      const svg=d3.select("#c11").append("svg").attr("width",w).attr("height",h);
-      const x=d3.scaleLinear().domain([-2,5]).range([m.l,w-m.r]);
-      const y=d3.scaleLinear().domain([0,0.35]).range([h-m.b,m.t]);
-
-     // === grid ===
-svg.append("g")
-  .attr("transform", `translate(0,${h - m.b})`)
-  .call(d3.axisBottom(x).ticks(10));
-svg.append("g")
-  .attr("transform", `translate(${m.l},0)`)
-  .call(d3.axisLeft(y).ticks(8));
-svg.selectAll("g.tick line").attr("stroke", "#e5e7eb");
-
-// === proper Gaussian functions ===
-function pdf(x, mu, sigma) {
-  return (1 / (sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * ((x - mu) / sigma) ** 2);
-}
-const xs = d3.range(-2, 5.001, 0.02);
-const dataA = xs.map(xv => ({ x: xv, y: pdf(xv, 0.2, 0.7) }));
-const dataB = xs.map(xv => ({ x: xv, y: pdf(xv, 2.0, 0.8) }));
-
-// === shaded threshold band ===
-const t1 = 0.9, t2 = 1.3;
-svg.append("rect")
-  .attr("x", x(t1))
-  .attr("y", y(0.33))
-  .attr("width", x(t2) - x(t1))
-  .attr("height", y(0) - y(0.33))
-  .attr("fill", "#cbd5e1")
-  .attr("opacity", 0.7);
-
-// vertical dashed lines
-svg.selectAll(".thr")
-  .data([t1, t2])
-  .enter()
-  .append("line")
-  .attr("x1", d => x(d))
-  .attr("x2", d => x(d))
-  .attr("y1", y(0))
-  .attr("y2", y(0.35))
-  .attr("stroke", "#475569")
-  .attr("stroke-dasharray", "6 6");
-
-// === draw Gaussian curves ===
-const line = d3.line()
-  .x(d => x(d.x))
-  .y(d => y(d.y))
-  .curve(d3.curveBasis);
-
-svg.append("path")
-  .datum(dataA)
-  .attr("fill", "none")
-  .attr("stroke", "#f2b705")
-  .attr("stroke-width", 3)
-  .attr("d", line);
-svg.append("path")
-  .datum(dataB)
-  .attr("fill", "none")
-  .attr("stroke", "#0f766e")
-  .attr("stroke-width", 3)
-  .attr("d", line);
-
-// === legend ===
-const legend = svg.append("g").attr("transform", `translate(${x(3.2)},${y(0.3)})`);
-legend.append("line")
-  .attr("x1", 0).attr("x2", 24).attr("y1", 0).attr("y2", 0)
-  .attr("stroke", "#f2b705").attr("stroke-width", 3);
-legend.append("text").attr("x", 30).attr("y", 4)
-  .text("p(x,y=0)·v(x)").attr("font-size", 13);
-legend.append("line")
-  .attr("x1", 0).attr("x2", 24).attr("y1", 20).attr("y2", 20)
-  .attr("stroke", "#0f766e").attr("stroke-width", 3);
-legend.append("text").attr("x", 30).attr("y", 24)
-  .text("p(x,y=1)·v(x)").attr("font-size", 13);
-
-      const legend=svg.append("g").attr("transform",`translate(${w-280},${m.t+6})`).style("cursor","pointer");
-      legend.append("line").attr("x1",0).attr("x2",22).attr("y1",0).attr("y2",0).attr("stroke","#f1b91b").attr("stroke-width",3);
-      legend.append("text").attr("x",28).attr("y",4).text("p(x,y=0)·v(x)").attr("font-size",13);
-      legend.append("line").attr("x1",0).attr("x2",22).attr("y1",20).attr("y2",20).attr("stroke","#1f9ea4").attr("stroke-width",3);
-      legend.append("text").attr("x",28).attr("y",24).text("p(x,y=1)·v(x)").attr("font-size",13);
-      legend.selectAll("text,line").on("mouseover",(_,i)=>{
-        if(i===0){pB.transition().duration(120).attr("opacity",0.25);}
-        else     {pA.transition().duration(120).attr("opacity",0.25);}
-      }).on("mouseout",()=>{
-        pA.transition().duration(120).attr("opacity",1);
-        pB.transition().duration(120).attr("opacity",1);
-      });
-    })();
-  </script>
+</body>
+</html>
 
   <!-- ===================== PLACEHOLDERS (OTHER 7 CHARTS) ===================== -->
   <h2>Chart 1 — Vector Space (placeholder)</h2>
