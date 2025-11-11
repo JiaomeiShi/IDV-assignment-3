@@ -1,255 +1,373 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>IDV Assignment 3 — Jiaomei Shi</title>
-
   <style>
-    body {
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
-      background: #eef4f4;
-      margin: 0;
-      padding: 32px;
+    :root{
+      --bg:#e8f0ef; --card:#fff; --ink:#0f172a; --muted:#4b5563;
+      --brand:#1864ab; --accent:#7e57c2; --ok:#3b7e3b; --ok2:#a8d5a2;
+      --warm:#f0d77a; --grid:#d7dde0;
     }
-    h1 { margin: 0 0 8px 0; }
-    .card {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0,0,0,.06);
-      padding: 20px;
-      margin-bottom: 28px;
-    }
-    .note-block { margin: 40px 0; }
-    .note-block p { margin: 4px 0 10px 0; }
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans","PingFang SC","Microsoft YaHei",sans-serif}
+    main{padding:32px 28px 80px;max-width:1100px;margin:0 auto}
+    h1{margin:0 0 8px;font-weight:700}
+    h2{margin:40px 0 12px}
+    .lead{color:var(--muted);margin:0 0 24px}
+    .card{background:var(--card);border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,.06);
+      padding:18px;margin:0 0 18px;overflow:auto}
+    .note{margin:10px 0 24px;color:var(--ink);line-height:1.55}
+    .muted{color:var(--muted)}
+    .pill{display:inline-block;font:12px/1.8 system-ui;padding:2px 10px;border-radius:999px;
+      background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;margin-left:6px}
+    .placeholder{padding:28px;text-align:center;border:1px dashed #cbd5e1;border-radius:12px;background:#fafafa}
+    .legend{display:flex;gap:14px;align-items:center;margin-top:8px}
+    .k{width:10px;height:10px;border-radius:2px;display:inline-block}
+    .k-line{width:22px;height:0;border-top:3px solid var(--ink);display:inline-block}
+    footer{margin-top:44px;color:var(--muted)}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace}
   </style>
 </head>
 <body>
+<main>
+  <h1>IDV Assignment 3 — Jiaomei Shi <span class="pill">5 D3.js replications + notes</span></h1>
+  <p class="lead">I replicated five charts in D3.js with at least one transition and one interaction each, and listed the remaining seven as references to cover all twelve.</p>
 
-<h1>IDV Assignment 3 — Jiaomei Shi</h1>
-<p class="note">This project replicates five reference charts using D3.js. Each chart includes at least one transition and one interaction, with notes describing the creation process and learning reflections.</p>
+  <!-- D3 -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
 
-<script src="https://d3js.org/d3.v7.min.js"></script>
+  <!-- ===================== CHART 6 (SCHEMATIC) ===================== -->
+  <h2>Chart 6 — Schematic (Transformer-like layout)</h2>
+  <div id="c6" class="card"></div>
+  <p class="note">
+    A compact schematic inspired by the reference: token/positional embeddings stack feeds into a decoder-only block,
+    with a small “classification layer + tiny bars” head. Rectangles slide-in (transition) and
+    each module highlights on hover (interaction). The exact sizes/values are illustrative rather than precise.
+  </p>
+  <script>
+    (function(){
+      const w=1020,h=360, pad=28;
+      const svg=d3.select("#c6").append("svg").attr("width",w).attr("height",h);
 
-<!-- ================= Chart 1 ================= -->
-<h2 style="margin-top:40px;">Chart 1 — Vector Space</h2>
-<div id="chart1" class="card"></div>
+      // helper
+      const box=(x,y,w,h,r=10)=>svg.append("rect")
+        .attr("x",x).attr("y",y).attr("rx",r).attr("ry",r)
+        .attr("width",w).attr("height",h)
+        .attr("fill","#fff").attr("stroke","#94a3b8").attr("stroke-width",1.5)
+        .style("filter","drop-shadow(0 2px 3px rgba(15,23,42,.08))");
 
-<script>
-const width1 = 880, height1 = 400;
-const svg1 = d3.select("#chart1").append("svg").attr("width", width1).attr("height", height1);
+      // embeddings rows
+      function tinyBlocks(gx,gy, n=8, c="#9ca3af"){
+        const g=svg.append("g");
+        for(let i=0;i<n;i++){
+          g.append("rect").attr("x",gx+i*20).attr("y",gy).attr("width",16).attr("height",12)
+           .attr("fill",c).attr("rx",2).attr("ry",2).attr("opacity",0)
+           .transition().delay(100+i*40).duration(400).attr("opacity",1);
+        }
+        return g;
+      }
 
-// grid
-for(let x=0;x<=width1;x+=50){svg1.append("line").attr("x1",x).attr("y1",0).attr("x2",x).attr("y2",height1).attr("stroke","#d0d0d0");}
-for(let y=0;y<=height1;y+=50){svg1.append("line").attr("x1",0).attr("y1",y).attr("x2",width1).attr("y2",y).attr("stroke","#d0d0d0");}
+      // token embeddings (bottom)
+      tinyBlocks(pad+90, h-90, 6, "#b6c3cf");
+      tinyBlocks(pad+210, h-90, 6, "#b6c3cf");
+      tinyBlocks(pad+330, h-90, 6, "#b6c3cf");
 
-// points
-const pts1=[
- {x:300,y:100,l:"e¹α"},
- {x:200,y:120,l:"e²α"},
- {x:250,y:250,l:"e¹β"},
- {x:160,y:260,l:"e²β"}
-];
+      // positional embeddings indicators
+      const pos=svg.append("g");
+      [0,1,2].forEach((i)=>{
+        pos.append("rect").attr("x",pad+90+i*120).attr("y",h-130).attr("width",48).attr("height",14)
+          .attr("fill","#e2e8f0").attr("stroke","#94a3b8").attr("rx",3).attr("opacity",0)
+          .transition().delay(300+i*150).duration(450).attr("opacity",1);
+        pos.append("text").attr("x",pad+104+i*120).attr("y",h-110).text(i)
+          .attr("fill","#475569").attr("font-size",12).attr("opacity",0)
+          .transition().delay(450+i*150).duration(400).attr("opacity",1);
+      });
 
-svg1.selectAll("circle").data(pts1).enter().append("circle")
- .attr("cx",d=>d.x).attr("cy",d=>d.y).attr("r",5).attr("fill","#1b4393")
- .transition().duration(800).attr("r",8);
+      // decoder block
+      const dec=box(pad+70, 90, 520, 140, 14).attr("fill","#f8fafc");
+      const layers=[
+        {y:120, txt:"Multi-head Masked Self-Attention"},
+        {y:150, txt:"Feed Forward Neural Network"},
+        {y:180, txt:"Decoder-Only Layer"}
+      ];
+      layers.forEach((row,i)=>{
+        svg.append("rect").attr("x",pad+90).attr("y",row.y).attr("width",480).attr("height",18)
+          .attr("fill","none").attr("stroke","#cbd5e1").attr("stroke-dasharray","6 6").attr("opacity",0)
+          .transition().delay(400+i*160).duration(500).attr("opacity",1);
+        svg.append("text").attr("x",pad+100).attr("y",row.y+13).text(row.txt)
+          .attr("font-size",12).attr("fill","#334155").attr("opacity",0)
+          .transition().delay(520+i*160).duration(400).attr("opacity",1);
+      });
 
-svg1.selectAll("circle")
- .on("mouseover",function(){d3.select(this).transition().duration(150).attr("r",12);})
- .on("mouseout",function(){d3.select(this).transition().duration(150).attr("r",8);});
+      // output embeddings (top strips)
+      tinyBlocks(pad+110, 60, 9, "#93c5fd");
+      tinyBlocks(pad+360, 60, 9, "#93c5fd");
 
-svg1.selectAll("text").data(pts1).enter().append("text")
- .attr("x",d=>d.x+6).attr("y",d=>d.y-6).text(d=>d.l)
- .style("font-size","20px").style("font-family","Georgia")
- .style("opacity",0).transition().delay(400).duration(600).style("opacity",1);
+      // classification head (left)
+      const head = box(pad+620, 40, 180, 56, 10).attr("fill","#fff");
+      svg.append("text").attr("x",pad+710).attr("y",72).text("Classification Layer")
+        .attr("text-anchor","middle").attr("font-size",12).attr("fill","#334155");
+      const bars = svg.append("g");
+      [18,32,22,40,26].forEach((v,i)=>{
+        bars.append("rect").attr("x",pad+636+i*18).attr("y",40-v).attr("width",12).attr("height",v)
+          .attr("fill", i===1? "#f4b4c6":"#9bd2c7").attr("opacity",0)
+          .transition().delay(300+i*120).duration(400).attr("opacity",1);
+      });
+      svg.append("text").attr("x",pad+676).attr("y",20).text("Tag")
+        .attr("font-size",14).attr("fill","#cc7d92");
 
-// arrow head
-svg1.append("defs").append("marker")
- .attr("id","arrow1").attr("viewBox","0 0 10 10").attr("refX",9).attr("refY",5)
- .attr("markerWidth",6).attr("markerHeight",6).attr("orient","auto-start-reverse")
- .append("path").attr("d","M 0 0 L 10 5 L 0 10 z").attr("fill","#1d4e89");
+      // right mini-head (faded "baseline")
+      const head2 = box(pad+840, 40, 180, 56, 10).attr("fill","#fff").attr("opacity",0.35);
+      svg.append("text").attr("x",pad+930).attr("y",72).text("Classification Layer")
+        .attr("text-anchor","middle").attr("font-size",12).attr("fill","#94a3b8");
 
-// links
-const links1=[
- {from:pts1[0],to:pts1[2]},
- {from:pts1[1],to:pts1[3]},
- {from:pts1[1],to:pts1[0]},
- {from:pts1[3],to:pts1[2]}
-];
+      // labels
+      svg.append("text").attr("x",pad).attr("y",h-40).text("Input Sequence").attr("font-size",13).attr("fill","#334155");
+      svg.append("text").attr("x",pad).attr("y",h-120).text("Positional Embeddings").attr("font-size",13).attr("fill","#334155");
+      svg.append("text").attr("x",pad).attr("y",76).text("Output Token Embeddings").attr("font-size",13).attr("fill","#334155");
 
-links1.forEach(l=>{
- svg1.append("line")
- .attr("x1",l.from.x).attr("y1",l.from.y)
- .attr("x2",l.from.x).attr("y2",l.from.y)
- .attr("stroke","#1d4e89").attr("stroke-width",2)
- .attr("stroke-dasharray","6 4").attr("marker-end","url(#arrow1)")
- .on("mouseover",function(){d3.select(this).transition().duration(150).attr("stroke-width",5);})
- .on("mouseout",function(){d3.select(this).transition().duration(150).attr("stroke-width",2);})
- .transition().duration(800)
- .attr("x2",l.to.x).attr("y2",l.to.y);
-});
-</script>
+      // interactions: highlight module on hover
+      [dec, head, head2].forEach(el=>{
+        el.on("mouseover", ()=> el.transition().duration(150).attr("stroke","#0ea5e9").attr("stroke-width",2.5))
+          .on("mouseout",  ()=> el.transition().duration(150).attr("stroke","#94a3b8").attr("stroke-width",1.5));
+      });
+    })();
+  </script>
 
-<div class="note-block">
-  <h3>Notes for Chart 1 — Vector Space</h3>
-  <p><strong>Observation:</strong> The reference chart presents a simple 2D vector space with labeled vectors and directional arrows. It emphasizes spatial relationship rather than numerical scale.</p>
-  <p><strong>Implementation:</strong> I created an SVG grid and placed four labeled vectors. The connecting dashed lines are animated and change thickness on hover to highlight interactivity.</p>
-  <p><strong>Reflection:</strong> Through this chart, I learned how D3 handles coordinate-based vector representation. The smooth transitions help make geometric relationships visually clear.</p>
-</div>
+  <!-- ===================== CHART 7 (VENN) ===================== -->
+  <h2>Chart 7 — Venn (3 sets)</h2>
+  <div id="c7" class="card"></div>
+  <p class="note">
+    Three translucent sets labelled <em>Replace</em>, <em>Delete</em>, <em>Rewrite</em>. Circles grow from zero (transition).
+    Hover over any circle to increase opacity and bring it to front (interaction). Roman numerals indicate regions for quick reading.
+  </p>
+  <script>
+    (function(){
+      const w=900,h=420; const svg=d3.select("#c7").append("svg").attr("width",w).attr("height",h);
+      const cx=[420,300,560], cy=[210,250,250], r=[160,190,190];
+      const colors=["#eab8d0","#c9c6f5","#f5e39a"];
 
-<!-- ================= Chart 2 ================= -->
-<h2 style="margin-top:40px;">Chart 2 — Word Network</h2>
-<div id="chart2" class="card"></div>
+      const groups = ["Replace","Delete","Rewrite"];
+      svg.selectAll(".ttl").data(groups).enter().append("text")
+        .attr("class","ttl").attr("x",(d,i)=> i===0? 420 : (i===1? 210:720))
+        .attr("y",40).attr("text-anchor","middle").text(d=>d).attr("font-size",18).attr("fill","#334155");
 
-<script>
-const width2=880,height2=400;
-const svg2=d3.select("#chart2").append("svg").attr("width",width2).attr("height",height2);
+      const g=svg.append("g");
+      const cs=g.selectAll("circle").data([0,1,2]).enter().append("circle")
+        .attr("cx",(i)=>cx[i]).attr("cy",(i)=>cy[i]).attr("r",0)
+        .attr("fill",(i)=>colors[i]).attr("opacity",.55);
+      cs.transition().delay((i)=>200+i*120).duration(600).attr("r",(i)=>r[i]);
+      cs.on("mouseover", function(){d3.select(this).raise().transition().duration(150).attr("opacity",.8);})
+        .on("mouseout", function(){d3.select(this).transition().duration(150).attr("opacity",.55);});
 
-const words2=[
- {id:"strike",x:200,y:100},{id:"protest",x:150,y:180},{id:"riot",x:250,y:180},{id:"crowd",x:200,y:260},
- {id:"earthquake",x:550,y:100},{id:"tsunami",x:500,y:180},{id:"collapse",x:600,y:180},{id:"tremor",x:650,y:260},{id:"shaking",x:700,y:120}
-];
+      // region numerals (approx)
+      const nums=[
+        {x:260,y:300,t:"I"}, {x:430,y:160,t:"II"}, {x:700,y:300,t:"III"},
+        {x:350,y:250,t:"IV"}, {x:520,y:230,t:"V"}, {x:520,y:300,t:"VI"},
+        {x:490,y:270,t:"VII"}
+      ];
+      svg.selectAll(".n").data(nums).enter().append("text").attr("class","n")
+        .attr("x",d=>d.x).attr("y",d=>d.y).text(d=>d.t)
+        .attr("font-size",28).attr("fill","#1f2937").attr("opacity",0)
+        .transition().delay(700).duration(500).attr("opacity",1);
+    })();
+  </script>
 
-const links2=[
- ["strike","protest"],["strike","crowd"],["riot","protest"],["riot","crowd"],
- ["earthquake","tsunami"],["earthquake","shaking"],["tsunami","collapse"],["collapse","tremor"],["shaking","tremor"]
-];
+  <!-- ===================== CHART 8 (BAR) ===================== -->
+  <h2>Chart 8 — Cross Validation Accuracy (simple bars)</h2>
+  <div id="c8" class="card"></div>
+  <div class="legend">
+    <span class="k" style="background:var(--warm)"></span> Solid = reported accuracy
+    <span class="k" style="background:#000;opacity:.35"></span> &nbsp; Dashed outline = baseline
+  </div>
+  <p class="note">
+    A grouped bar with three models. Bars grow from the baseline (transition), and hovering a bar shows a floating value label (interaction).
+    Values are illustrative to match the look-and-feel rather than exact replication.
+  </p>
+  <script>
+    (function(){
+      const data=[
+        {model:"BERT", acc:74.4, base:64.8},
+        {model:"RoBERTa", acc:81.9, base:65.5},
+        {model:"BART", acc:73.1, base:63.5}
+      ];
+      const w=920,h=360, m={t:30,r:30,b:70,l:60};
+      const svg=d3.select("#c8").append("svg").attr("width",w).attr("height",h);
+      const x=d3.scaleBand().domain(data.map(d=>d.model)).range([m.l,w-m.r]).padding(0.32);
+      const y=d3.scaleLinear().domain([0,100]).range([h-m.b,m.t]);
 
-links2.forEach(l=>{
- const a=words2.find(w=>w.id===l[0]);
- const b=words2.find(w=>w.id===l[1]);
- svg2.append("line")
- .attr("x1",a.x).attr("y1",a.y)
- .attr("x2",b.x).attr("y2",b.y)
- .attr("stroke","#1864ab").attr("stroke-width",2).attr("stroke-dasharray","5 3")
- .on("mouseover",function(){d3.select(this).transition().duration(120).attr("stroke-width",4);})
- .on("mouseout",function(){d3.select(this).transition().duration(120).attr("stroke-width",2);});
-});
+      // axes (minimal)
+      svg.append("g").attr("transform",`translate(0,${h-m.b})`)
+        .call(d3.axisBottom(x)).selectAll("text").style("font-size","16px");
+      svg.append("g").attr("transform",`translate(${m.l},0)`)
+        .call(d3.axisLeft(y).ticks(5)).selectAll("text").style("font-size","12px");
 
-svg2.selectAll("text").data(words2).enter().append("text")
- .text(d=>d.id).attr("x",d=>d.x).attr("y",d=>d.y)
- .style("font-size","16px").style("fill","#1864ab")
- .style("opacity",0).transition().duration(600).style("opacity",1);
-</script>
+      // dashed outline baselines
+      svg.selectAll(".ghost").data(data).enter().append("rect").attr("class","ghost")
+        .attr("x",d=>x(d.model)+x.bandwidth()/2+8).attr("width",x.bandwidth()/2-16)
+        .attr("y",d=>y(d.base)).attr("height",d=>y(0)-y(d.base))
+        .attr("fill","none").attr("stroke","#d1a51f").attr("stroke-width",3).attr("stroke-dasharray","8 6")
+        .attr("opacity",0.6);
 
-<div class="note-block">
-  <h3>Notes for Chart 2 — Word Network</h3>
-  <p><strong>Observation:</strong> This network connects related words into clusters, reflecting semantic relationships.</p>
-  <p><strong>Implementation:</strong> I manually positioned words and linked them using dashed lines. Hovering over a link increases its stroke width, and all labels fade in gradually.</p>
-  <p><strong>Reflection:</strong> This chart reinforced how D3 can visually structure abstract data. Even subtle transitions make relationships easier to interpret.</p>
-</div>
+      // main bars
+      const bars=svg.selectAll(".bar").data(data).enter().append("rect").attr("class","bar")
+        .attr("x",d=>x(d.model)+8).attr("width",x.bandwidth()/2-16)
+        .attr("y",y(0)).attr("height",0).attr("fill","var(--warm)")
+        .on("mousemove", function(e,d){
+          const t=svg.selectAll(".tip").data([d]).join("text").attr("class","tip")
+            .attr("x", x(d.model)+x.bandwidth()/4 + 8).attr("y", y(d.acc)-8)
+            .attr("text-anchor","middle").attr("font-size",14).attr("fill","#111827");
+          t.text(d.acc.toFixed(1));
+        })
+        .on("mouseleave", ()=> svg.selectAll(".tip").remove());
 
-<!-- ================= Chart 3 ================= -->
-<h2 style="margin-top:40px;">Chart 3 — Optimization Route</h2>
-<div id="chart3" class="card"></div>
+      bars.transition().delay((_,i)=>200+i*200).duration(800)
+        .attr("y",d=>y(d.acc)).attr("height",d=>y(0)-y(d.acc));
+    })();
+  </script>
 
-<script>
-const width3=880,height3=400;
-const svg3=d3.select("#chart3").append("svg").attr("width",width3).attr("height",height3);
+  <!-- ===================== CHART 9 (SKETCH) ===================== -->
+  <h2>Chart 9 — Line Sketch (SVG stroke animation)</h2>
+  <div id="c9" class="card"></div>
+  <p class="note">
+    A simple line-drawing “robot writing” sketch made with a few SVG paths.
+    Strokes are revealed by animating <span class="mono">stroke-dashoffset</span> (transition), and thicken slightly on hover (interaction).
+    This demonstrates how a clean sketch can be delivered directly as vector instructions.
+  </p>
+  <script>
+    (function(){
+      const w=680,h=420;
+      const svg=d3.select("#c9").append("svg").attr("width",w).attr("height",h);
+      svg.style("background","#fff");
 
-const route3=[
- {x:200,y:350},{x:220,y:300},{x:250,y:250},{x:300,y:200},
- {x:350,y:180},{x:400,y:200},{x:450,y:220},{x:500,y:230},
- {x:550,y:240},{x:600,y:245},{x:650,y:250}
-];
+      const paths=[
+        // screen box
+        "M420,100 L560,80 L560,190 L420,210 Z",
+        // face frame
+        "M445,115 L535,105 L535,175 L445,185 Z",
+        // eyes + mouth
+        "M462,145 L480,142 M500,137 L520,134 M475,165 L508,160",
+        // body wire
+        "M420,210 C400,250 360,250 340,300",
+        // arm + pen
+        "M360,300 C380,290 410,270 430,260 L455,265",
+        // paper
+        "M470,268 L520,250 L545,272",
+        // bench top
+        "M260,300 L520,300",
+        // bench box
+        "M260,300 L260,400 L520,400 L520,300",
+        // legs
+        "M330,400 C335,420 350,430 360,420",
+        "M460,400 C470,420 490,430 500,420"
+      ];
 
-const path3 = svg3.append("path")
- .attr("fill","none").attr("stroke","#1864ab").attr("stroke-width",2).attr("stroke-dasharray","5 3")
- .attr("d",d3.line().x(d=>d.x).y(d=>d.y)(route3));
+      const g=svg.append("g").attr("stroke","#334155").attr("stroke-width",2.2).attr("fill","none")
+      paths.forEach((d,i)=>{
+        const p=g.append("path").attr("d",d).attr("stroke-linecap","round").attr("opacity",0.95);
+        const L=p.node().getTotalLength();
+        p.attr("stroke-dasharray",L+" "+L).attr("stroke-dashoffset",L)
+         .transition().delay(120*i).duration(700).ease(d3.easeCubicOut)
+         .attr("stroke-dashoffset",0);
+        p.on("mouseover",()=>p.transition().duration(100).attr("stroke-width",3.4))
+         .on("mouseout", ()=>p.transition().duration(100).attr("stroke-width",2.2));
+      });
+    })();
+  </script>
 
-const L3 = path3.node().getTotalLength();
-path3.attr("stroke-dasharray", L3 + " " + L3)
- .attr("stroke-dashoffset", L3)
- .transition().duration(1200).ease(d3.easeCubicInOut)
- .attr("stroke-dashoffset", 0);
-</script>
+  <!-- ===================== CHART 11 (FUNCTION) ===================== -->
+  <h2>Chart 11 — Two Distributions with Decision Band</h2>
+  <div id="c11" class="card"></div>
+  <p class="note">
+    Two Gaussian-like curves with a shaded decision band. The curves reveal from left to right (transition). Hover the legend to
+    temporarily dim the other curve (interaction). Gridlines are light to keep focus on shape.
+  </p>
+  <script>
+    (function(){
+      const w=920,h=360,m={t:24,r:24,b:48,l:54};
+      const svg=d3.select("#c11").append("svg").attr("width",w).attr("height",h);
+      const x=d3.scaleLinear().domain([-2,5]).range([m.l,w-m.r]);
+      const y=d3.scaleLinear().domain([0,0.35]).range([h-m.b,m.t]);
 
-<div class="note-block">
-  <h3>Notes for Chart 3 — Optimization Route</h3>
-  <p><strong>Observation:</strong> The chart visualizes a progression path as an optimization process.</p>
-  <p><strong>Implementation:</strong> A dashed line was created using <code>d3.line()</code>, and its stroke-dash offset was animated to make the path appear progressively.</p>
-  <p><strong>Reflection:</strong> This method taught me how to use path animation to convey direction, process, and convergence in a single visual flow.</p>
-</div>
+      // grid
+      svg.append("g").attr("transform",`translate(0,${h-m.b})`)
+        .call(d3.axisBottom(x).ticks(8))
+      svg.append("g").attr("transform",`translate(${m.l},0)`)
+        .call(d3.axisLeft(y).ticks(6));
+      svg.selectAll("g.tick line").attr("stroke","#e5e7eb");
 
-<!-- ================= Chart 4 ================= -->
-<h2 style="margin-top:40px;">Chart 4 — Cluster Scatter</h2>
-<div id="chart4" class="card"></div>
+      const line=d3.line().x(d=>x(d.x)).y(d=>y(d.y));
+      function gauss(mu,sig){return d3.range(-2,5.01,0.03).map(x=>({x, y:(1/(sig*Math.sqrt(2*Math.PI)))*Math.exp(-0.5*((x-mu)/sig)**2)}));}
+      const A=gauss(0.2,0.7), B=gauss(2.0,0.7);
 
-<script>
-const width4=880,height4=400;
-const svg4=d3.select("#chart4").append("svg").attr("width",width4).attr("height",height4);
+      // shaded band
+      const t1=0.9, t2=1.4;
+      svg.append("rect").attr("x",x(t1)).attr("y",y(0.33)).attr("width",x(t2)-x(t1)).attr("height",y(0)-y(0.33))
+        .attr("fill","#9ca3af").attr("opacity",.35);
 
-const cA=d3.range(30).map(()=>({x:200+Math.random()*60,y:180+Math.random()*60}));
-const cB=d3.range(30).map(()=>({x:550+Math.random()*60,y:180+Math.random()*60}));
-const pts4=cA.concat(cB);
+      function drawPath(data,color,cls){
+        const p=svg.append("path").attr("class",cls).attr("fill","none").attr("stroke",color).attr("stroke-width",3)
+          .attr("d",line(data));
+        const L=p.node().getTotalLength();
+        p.attr("stroke-dasharray",L+" "+L).attr("stroke-dashoffset",L)
+          .transition().duration(1200).ease(d3.easeCubicInOut).attr("stroke-dashoffset",0);
+        return p;
+      }
+      const pA=drawPath(A,"#f1b91b","A");
+      const pB=drawPath(B,"#1f9ea4","B");
 
-svg4.selectAll("circle").data(pts4).enter().append("circle")
- .attr("cx",d=>d.x).attr("cy",d=>d.y-20).attr("r",4).attr("fill","#7e57c2").attr("opacity",0)
- .on("mouseover",function(){d3.select(this).transition().duration(120).attr("r",10);})
- .on("mouseout",function(){d3.select(this).transition().duration(120).attr("r",4);})
- .transition().duration(600).attr("cy",d=>d.y).attr("opacity",0.85);
-</script>
+      // legend interaction
+      const legend=svg.append("g").attr("transform",`translate(${w-280},${m.t+6})`).style("cursor","pointer");
+      legend.append("line").attr("x1",0).attr("x2",22).attr("y1",0).attr("y2",0).attr("stroke","#f1b91b").attr("stroke-width",3);
+      legend.append("text").attr("x",28).attr("y",4).text("p(x,y=0)·v(x)").attr("font-size",13);
+      legend.append("line").attr("x1",0).attr("x2",22).attr("y1",20).attr("y2",20).attr("stroke","#1f9ea4").attr("stroke-width",3);
+      legend.append("text").attr("x",28).attr("y",24).text("p(x,y=1)·v(x)").attr("font-size",13);
+      legend.selectAll("text,line").on("mouseover",(_,i)=>{
+        if(i===0){pB.transition().duration(120).attr("opacity",0.25);}
+        else     {pA.transition().duration(120).attr("opacity",0.25);}
+      }).on("mouseout",()=>{
+        pA.transition().duration(120).attr("opacity",1);
+        pB.transition().duration(120).attr("opacity",1);
+      });
+    })();
+  </script>
 
-<div class="note-block">
-  <h3>Notes for Chart 4 — Cluster Scatter</h3>
-  <p><strong>Observation:</strong> The scatter plot represents two data clusters illustrating separation and similarity.</p>
-  <p><strong>Implementation:</strong> Two random clusters were generated and animated with a drop-and-fade transition. Hovering on points enlarges them for interactive feedback.</p>
-  <p><strong>Reflection:</strong> I learned how animation and interactivity can highlight clustering patterns, making statistical visuals more dynamic and intuitive.</p>
-</div>
+  <!-- ===================== PLACEHOLDERS (OTHER 7 CHARTS) ===================== -->
+  <h2>Chart 1 — Vector Space (placeholder)</h2>
+  <div class="card"><div class="placeholder">Covered conceptually in Chart 6/7/11; not selected for D3 replication in this submission.</div></div>
 
-<!-- ================= Chart 5 ================= -->
-<h2 style="margin-top:40px;">Chart 5 — Mixed Math Plots</h2>
-<div id="chart5" class="card"></div>
+  <h2>Chart 2 — Word Network (placeholder)</h2>
+  <div class="card"><div class="placeholder">Network-style dashed connections are demonstrated in Chart 6 and animated strokes in Chart 9.</div></div>
 
-<script>
-const width5=880,height5=400;
-const svg5=d3.select("#chart5").append("svg").attr("width",width5).attr("height",height5);
+  <h2>Chart 3 — Optimization Route (placeholder)</h2>
+  <div class="card"><div class="placeholder">Polyline/route idea is reflected by stroke animation techniques used in Chart 9 and path reveals in Chart 11.</div></div>
 
-// left bars
-svg5.append("rect").attr("x",200).attr("y",200).attr("width",30).attr("height",150).attr("fill","#b79dd6");
-svg5.append("rect").attr("x",235).attr("y",150).attr("width",30).attr("height",200).attr("fill","#b79dd6");
-svg5.append("text").attr("x",200).attr("y",380).text("i/n").style("font-size","14px");
-svg5.append("text").attr("x",235).attr("y",380).text("(i+Δn)/n").style("font-size","14px");
-svg5.append("text").attr("x",280).attr("y",380).text("1").style("font-size","14px");
+  <h2>Chart 4 — Cluster Scatter (placeholder)</h2>
+  <div class="card"><div class="placeholder">Clustered randomness can be implemented with jitter; omitted here to focus on the selected five.</div></div>
 
-// right lines
-const line1=[{x:500,y:120},{x:650,y:140},{x:800,y:200}];
-svg5.append("path").classed("plot-line",true)
- .attr("fill","none").attr("stroke","#3b7e3b").attr("stroke-width",3)
- .attr("d",d3.line().x(d=>d.x).y(d=>d.y)(line1));
+  <h2>Chart 5 — Mixed Math Plots (placeholder)</h2>
+  <div class="card"><div class="placeholder">Bar + line combination ideas are applied in Chart 8 and Chart 11.</div></div>
 
-const line2=[{x:500,y:200},{x:650,y:260},{x:800,y:300}];
-svg5.append("path").classed("plot-line",true)
- .attr("fill","none").attr("stroke","#a8d5a2").attr("stroke-width",2)
- .attr("stroke-dasharray","5 5")
- .attr("d",d3.line().x(d=>d.x).y(d=>d.y)(line2));
+  <h2>Chart 10 — Map (placeholder)</h2>
+  <div class="card"><div class="placeholder">A precise map can be drawn via SVG paths or geoJSON; not selected among the five.</div></div>
 
-svg5.selectAll("path.plot-line").each(function(_,i){
- const p=d3.select(this);
- const L=this.getTotalLength();
- p.attr("stroke-dasharray",L+" "+L)
-  .attr("stroke-dashoffset",L)
-  .transition().delay(i*200).duration(1000)
-  .attr("stroke-dashoffset",0);
-});
-</script>
+  <h2>Chart 12 — Geometry (placeholder)</h2>
+  <div class="card"><div class="placeholder">Geometric construction with constraints; techniques overlap with Chart 6’s modular schematic and Chart 11’s bands.</div></div>
 
-<div class="note-block">
-  <h3>Notes for Chart 5 — Mixed Math Plots</h3>
-  <p><strong>Observation:</strong> The chart combines discrete bar comparisons with continuous curve trends, reflecting mathematical relationships between discrete and continuous data.</p>
-  <p><strong>Implementation:</strong> Left-side bars visualize the Δn step, while two right-side lines (solid and dashed) simulate functions and are animated progressively.</p>
-  <p><strong>Reflection:</strong> Integrating both forms deepened my understanding of how D3 unifies multiple mathematical expressions in one canvas. The progressive drawing conveys flow and continuity.</p>
-</div>
-
-<!-- ================= Process Reflection ================= -->
-<h2 style="margin-top:50px;">Process Reflection — How These Charts Were Created</h2>
-<div class="card">
-  <p><strong>Step-by-step approach:</strong> I began by reviewing the reference charts and breaking them into basic visual elements such as points, lines, or paths. I then reconstructed each using D3.js primitives (<code>rect</code>, <code>line</code>, <code>circle</code>, <code>path</code>), verifying each part visually before adding transitions or interactivity.</p>
-  <p><strong>Chatbot collaboration:</strong> Throughout this process, I discussed my progress and troubleshooting steps with ChatGPT. The chatbot helped debug syntax issues, explain <code>stroke-dasharray</code> animations, and refine transition effects. It also suggested narrative structuring for the notes and recommended using "Observation / Implementation / Reflection" to improve academic clarity.</p>
-  <p><strong>Intermediate results:</strong> I tested each chart incrementally—first drawing static shapes, then applying transitions, and finally adding hover interactivity. This iterative testing approach allowed me to debug gradually rather than all at once.</p>
-  <p><strong>Reflection:</strong> This project helped me understand not only D3 syntax and SVG manipulation but also the design thinking behind data visualization: clarity, interactivity, and progressive refinement. Working with ChatGPT simulated a collaborative design-learning workflow, similar to pair programming but focused on creative visualization.</p>
-</div>
-
+  <!-- ===================== SUMMARY / REFLECTION ===================== -->
+  <footer class="card">
+    <h2 style="margin-top:0">Process Reflection</h2>
+    <p class="note">
+      I approached each replication by first reducing the original visual to basic primitives (rects, circles, lines, paths), then mapping them to D3 operations.
+      I kept exact magnitudes flexible, prioritizing visual similarity and clarity. For transitions I used staged reveals (bar grows, radius expands, path dash-offset),
+      and for interactions I chose lightweight effects (hover highlight, tooltip labels, legend filtering) that serve interpretation rather than decoration.
+      Building the schematic (Chart 6) clarified how to modularize a complex diagram; the Venn (Chart 7) was a good exercise in layering and alpha compositing;
+      the bars (Chart 8) emphasized scale/axis hygiene; the sketch (Chart 9) demonstrated vector workflows; and the functions (Chart 11) focused on path generation and
+      grid/annotation balance. The work was iteratively refined with ChatGPT, using short cycles to test single features (one transition or interaction at a time).
+    </p>
+  </footer>
+</main>
 </body>
 </html>
