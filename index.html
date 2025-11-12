@@ -1,149 +1,420 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Assignment 3 — Charts 8–12</title>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <style>
-    body {
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      background-color: #e8efef;
-      color: #333;
-      padding: 30px;
-    }
-    h2 { margin-top: 60px; }
-    svg {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-      margin-bottom: 10px;
-    }
-    .note {
-      color: #555;
-      font-size: 14px;
-      margin-bottom: 30px;
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Assignment 3 — Charts 8–12 (D3.js) | SUTD HCD</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root{
+    --bg:#e9f1f1; --card:#ffffff; --ink:#1f2937; --sub:#4b5563;
+    --accent:#2563eb; --gold:#f2cc66; --gold-d:#e3b53a; --teal:#1d7aa6; --orange:#f19a2b;
+    --violet:#7d3c98; --rose:#b04b4b; --sky:#9ed0ff; --sand:#ffe4b8;
+  }
+  *{box-sizing:border-box}
+  body{font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans","PingFang SC","Microsoft YaHei",sans-serif;
+       background:var(--bg); color:var(--ink); margin:0; padding:32px}
+  h1{margin:0 0 10px 0}
+  .toolbar{display:flex; gap:12px; align-items:center; margin-bottom:24px}
+  button{background:var(--ink); color:#fff; border:none; padding:10px 14px; border-radius:10px; cursor:pointer}
+  button:hover{filter:brightness(1.05)}
+  section{margin-top:42px}
+  h2{font-size:34px; margin:12px 0 12px}
+  .card{
+    background:var(--card); border-radius:16px;
+    box-shadow:0 14px 40px rgba(0,0,0,.12); padding:16px; margin:6px 0 10px
+  }
+  svg{width:100%; height:auto; display:block; border-radius:10px}
+  .note{background:#f8fafb;border-left:4px solid #94a3b8;padding:12px 14px;border-radius:8px;margin:10px 0;color:var(--sub)}
+  .note h4{margin:0 0 8px 0; color:#111827}
+  .grid line{stroke:#e5e7eb}
+  .tooltip{
+    position:absolute; pointer-events:none; background:#111827; color:#fff;
+    font-size:12px; padding:6px 8px; border-radius:8px; transform:translate(-50%,-120%); white-space:nowrap
+  }
+  .legend text{font-size:14px}
+  .muted{opacity:.75}
+  .small{font-size:13px}
+  .axis path,.axis line{stroke:#6b7280}
+</style>
 </head>
 <body>
-  <h1>Assignment 3 — D3.js Charts (8–12)</h1>
+  <h1>Assignment 3 — D3.js Replications (Charts 8–12)</h1>
+  <div class="toolbar">
+    <button id="replay">Replay animations</button>
+    <span class="small muted">Includes one transition + one interaction per chart, and detailed notes.</span>
+  </div>
 
   <!-- Chart 8 -->
-  <h2>Chart 8 (Simple Bars)</h2>
-  <svg id="chart8" width="600" height="300"></svg>
-  <p class="note">Bars comparing model accuracies with hover highlight and smooth transition.</p>
+  <section id="sec8">
+    <h2>Chart 8 (Simple Bars)</h2>
+    <div class="card"><svg id="chart8" viewBox="0 0 760 380" aria-label="Chart 8"></svg></div>
+    <div class="note">
+      <h4>Notes — How I replicated Chart 8</h4>
+      <ol>
+        <li><b>Goal/shape：</b>三组柱（BERT / RoBERTa / BART），高度约 73–82，样式接近原图的淡金色。</li>
+        <li><b>数据与比例尺：</b>用 <code>d3.scaleBand</code>（x）和 <code>d3.scaleLinear</code>（y），y 0→100；给 band 设置 <code>padding</code> 让柱子与原图的留白相似。</li>
+        <li><b>过渡（Transition）：</b>初始高度 0 → 目标高度，上升 900ms；数值标签用 <code>tween</code> 做数字滚动。</li>
+        <li><b>交互（Interaction）：</b>Hover 时柱子 <b>放大 6%</b> 并变色为更深金色；点击切换虚线轮廓（模拟论文里“对比基线”占位）。</li>
+        <li><b>差异说明：</b>没有画空心的虚线“占位柱”，改用点击切换的样式表现“对比区间”。</li>
+        <li><b>与机器人对话记录要点：</b>我向 <b>ChatGPT（GPT-5 Thinking）</b> 询问“如何用 D3 给柱子做 hover 放大且不溢出 band”。它建议用 <code>selection.raise()</code> 保证 hover 的柱在顶层、并通过 <code>x(d)+bandwidth()*0.03</code> 局部位移补偿放大造成的错位。</li>
+      </ol>
+    </div>
+  </section>
 
   <!-- Chart 9 -->
-  <h2>Chart 9 (Sketch → SVG Line Drawing)</h2>
-  <svg id="chart9" width="300" height="300"></svg>
-  <p class="note">Simulated SVG drawing animation for a sketch-like line.</p>
+  <section id="sec9">
+    <h2>Chart 9 (Sketch → SVG Line Drawing)</h2>
+    <div class="card"><svg id="chart9" viewBox="0 0 520 360" aria-label="Chart 9"></svg></div>
+    <div class="note">
+      <h4>Notes — How I replicated Chart 9</h4>
+      <ol>
+        <li><b>Goal/shape：</b>把“手绘线稿”变成可播放的 SVG。用折线模拟“机器人坐方块”的折线轮廓片段。</li>
+        <li><b>过渡：</b>用 <code>stroke-dasharray / stroke-dashoffset</code> 制作“笔划绘制”动画 + 一枚“笔尖”小圆点沿着路径 <code>getPointAtLength</code> 运动。</li>
+        <li><b>交互：</b>鼠标悬停时线条加粗、轻微抖动（<code>easeElastic</code>），突出“手绘感”。</li>
+        <li><b>与机器人对话记录要点：</b>我问 GPT-5 “如何让圆点跟随路径运动”，得到用 <code>getTotalLength()</code> + <code>getPointAtLength(t)</code> 的方案并在 <code>transition.tween</code> 中每一帧更新 <code>cx, cy</code>。</li>
+      </ol>
+    </div>
+  </section>
 
   <!-- Chart 10 -->
-  <h2>Chart 10 (Map)</h2>
-  <svg id="chart10" width="400" height="400"></svg>
-  <p class="note">A mock geographic circle overlay to represent spatial mapping.</p>
+  <section id="sec10">
+    <h2>Chart 10 (Map)</h2>
+    <div class="card"><svg id="chart10" viewBox="0 0 520 520" aria-label="Chart 10"></svg></div>
+    <div class="note">
+      <h4>Notes — How I replicated Chart 10</h4>
+      <ol>
+        <li><b>Goal/shape：</b>网格背景 + 类岛屿的多边形 + 一枚可移动的半径圈 <code>B(x')</code>。</li>
+        <li><b>过渡：</b>圆的半径从 0 → 150 平滑展开（1200ms）。</li>
+        <li><b>交互：</b>启用 <code>d3.zoom</code> 做平移/缩放；同时圆心可 <b>拖拽</b>（<code>d3.drag</code>），拖拽时在中心显示坐标；滚轮缩放不影响笔触宽度（用 <code>vector-effect: non-scaling-stroke</code>）。</li>
+        <li><b>与机器人对话记录要点：</b>我和 GPT-5 确认“缩放时文本不变形”的做法：将标注文本放在非缩放层，或在 zoom 事件内反向缩放字体，这里采用前者的“独立 HUD 图层”。</li>
+      </ol>
+    </div>
+  </section>
 
   <!-- Chart 11 -->
-  <h2>Chart 11 (Function)</h2>
-  <svg id="chart11" width="600" height="300"></svg>
-  <p class="note">Two probability density curves with shaded overlap area and tooltip on hover.</p>
+  <section id="sec11">
+    <h2>Chart 11 (Function)</h2>
+    <div class="card"><svg id="chart11" viewBox="0 0 820 420" aria-label="Chart 11"></svg></div>
+    <div class="note">
+      <h4>Notes — How I replicated Chart 11</h4>
+      <ol>
+        <li><b>Goal/shape：</b>两条高斯密度曲线 + 两条竖虚线 + 介于 <i>x₁, x₂</i> 的重叠阴影区。</li>
+        <li><b>过渡：</b>曲线从透明→不透明；阴影面积从 0 宽度→目标区间。</li>
+        <li><b>交互：</b>鼠标在图内移动时显示 <b>tooltip</b>：x 坐标与两条 pdf 值；点击一次可切换“显示/隐藏”阴影区。</li>
+        <li><b>D3 技法：</b><code>d3.area</code> 填充交集（通过逐点 <code>Math.min(pdf0,pdf1)</code>），<code>tween</code> 做阴影宽度动画。</li>
+        <li><b>与机器人对话记录要点：</b>我询问 GPT-5 “如何在没有解析交点的情况下做阴影动画”，它建议“先渲染全长 area，然后用剪裁 <code>clipPath</code>（或动态路径）控制可见窗口”。我采用动态路径宽度。</li>
+      </ol>
+    </div>
+  </section>
 
   <!-- Chart 12 -->
-  <h2>Chart 12 (Geometry)</h2>
-  <svg id="chart12" width="400" height="300"></svg>
-  <p class="note">Two overlapping rectangles with animated geometric relation lines.</p>
+  <section id="sec12">
+    <h2>Chart 12 (Geometry)</h2>
+    <div class="card"><svg id="chart12" viewBox="0 0 640 420" aria-label="Chart 12"></svg></div>
+    <div class="note">
+      <h4>Notes — How I replicated Chart 12</h4>
+      <ol>
+        <li><b>Goal/shape：</b>两方块相交，斜分界线与两点 <i>x, x'</i>；连线带箭头。</li>
+        <li><b>过渡：</b>连线长度从 0 增长至目标；箭头与端点圆点延迟出现。</li>
+        <li><b>交互：</b><b>拖拽</b>点 <i>x</i> 实时更新连线与标注；点击画布可在交界附近切换分界线角度（模拟“φ₁/φ₂”变化）。</li>
+        <li><b>D3 技法：</b><code>d3.drag</code>、定义 <code>marker</code> 箭头、矩形重叠透明度层次。</li>
+        <li><b>与机器人对话记录要点：</b>我和 GPT-5 讨论“保持箭头大小不随缩放变化”的做法：用 <code>markerUnits='userSpaceOnUse'</code> 固定像素尺寸。</li>
+      </ol>
+    </div>
+  </section>
 
-  <script>
-  // ---------------- Chart 8 ----------------
-  const svg8 = d3.select("#chart8");
-  const data8 = [
-    {model: "BERT", val: 74.4},
-    {model: "RoBERTa", val: 81.9},
-    {model: "BART", val: 73.1}
+  <div id="tt" class="tooltip" style="opacity:0"></div>
+
+<script>
+/* ---------- helpers ---------- */
+const tt = d3.select("#tt");
+function showTT([x,y], html){
+  tt.style("opacity",1).html(html).style("left", x+"px").style("top", y+"px");
+}
+function hideTT(){ tt.style("opacity",0); }
+
+document.getElementById("replay").addEventListener("click", () => {
+  d3.selectAll("svg").selectAll("*").interrupt(); // stop ongoing transitions
+  d3.selectAll("svg").selectAll("*").remove();    // clear
+  draw8(); draw9(); draw10(); draw11(); draw12(); // redraw
+});
+
+/* ---------- Chart 8: Bars ---------- */
+function draw8(){
+  const svg = d3.select("#chart8"),
+        W = 760, H = 380, m = {t:30,r:20,b:50,l:50};
+  const g = svg.append("g").attr("transform",`translate(${m.l},${m.t})`);
+  const w = W - m.l - m.r, h = H - m.t - m.b;
+
+  const data = [
+    {model:"BERT", val:74.4},
+    {model:"RoBERTa", val:81.9},
+    {model:"BART", val:73.1}
   ];
-  const x8 = d3.scaleBand().domain(data8.map(d=>d.model)).range([50,550]).padding(0.4);
-  const y8 = d3.scaleLinear().domain([0,100]).range([250,30]);
-  svg8.append("g").attr("transform","translate(0,250)").call(d3.axisBottom(x8));
-  svg8.append("g").attr("transform","translate(50,0)").call(d3.axisLeft(y8));
-  svg8.selectAll(".bar")
-      .data(data8)
-      .enter()
-      .append("rect")
-      .attr("x", d => x8(d.model))
-      .attr("y", 250)
-      .attr("width", x8.bandwidth())
-      .attr("height", 0)
-      .attr("fill", "#f4d06f")
-      .on("mouseover", function() { d3.select(this).attr("fill","#f0b429"); })
-      .on("mouseout", function() { d3.select(this).attr("fill","#f4d06f"); })
-      .transition()
-      .duration(1000)
-      .attr("y", d => y8(d.val))
-      .attr("height", d => 250 - y8(d.val));
 
-  // ---------------- Chart 9 ----------------
-  const svg9 = d3.select("#chart9");
-  const lineData9 = [[50,200],[100,100],[150,200],[200,100],[250,200]];
-  const line9 = d3.line()(lineData9);
-  svg9.append("path")
-    .attr("d", line9)
-    .attr("fill", "none")
-    .attr("stroke", "#3a66d6")
-    .attr("stroke-width", 3)
-    .attr("stroke-dasharray", function() { return this.getTotalLength(); })
-    .attr("stroke-dashoffset", function() { return this.getTotalLength(); })
-    .transition()
-    .duration(2000)
-    .ease(d3.easeLinear)
-    .attr("stroke-dashoffset", 0);
+  const x = d3.scaleBand().domain(data.map(d=>d.model)).range([0,w]).padding(0.35);
+  const y = d3.scaleLinear().domain([0,100]).nice().range([h,0]);
 
-  // ---------------- Chart 10 ----------------
-  const svg10 = d3.select("#chart10");
-  svg10.append("rect")
-    .attr("x", 0).attr("y", 0)
-    .attr("width", 400).attr("height", 400)
-    .attr("fill", "#faf7e8");
-  svg10.append("circle")
-    .attr("cx", 200).attr("cy", 200)
-    .attr("r", 0)
-    .attr("stroke", "#b04b4b").attr("stroke-width", 3).attr("fill","none")
-    .transition().duration(1500).attr("r",120);
-  svg10.append("text").attr("x", 200).attr("y", 210).text("x'")
-    .attr("text-anchor","middle").style("fill","#333").style("font-size","16px");
+  // axes
+  g.append("g").attr("class","axis").attr("transform",`translate(0,${h})`).call(d3.axisBottom(x));
+  g.append("g").attr("class","axis").call(d3.axisLeft(y).tickSize(-w)).selectAll(".tick line").classed("grid",true);
 
-  // ---------------- Chart 11 ----------------
-  const svg11 = d3.select("#chart11");
-  const x11 = d3.scaleLinear().domain([-2,5]).range([50,550]);
-  const y11 = d3.scaleLinear().domain([0,0.35]).range([250,30]);
-  const line11 = d3.line().x(d=>x11(d.x)).y(d=>y11(d.y));
-  function gaussian(mu, sigma, color) {
-    const data = d3.range(-2,5,0.1).map(x=>({x:x, y: (1/(sigma*Math.sqrt(2*Math.PI)))*Math.exp(-0.5*((x-mu)/sigma)**2)}));
-    svg11.append("path").datum(data)
-      .attr("fill","none")
-      .attr("stroke",color).attr("stroke-width",2)
-      .attr("d",line11)
-      .attr("opacity",0)
-      .transition().duration(1000).attr("opacity",1);
-  }
-  gaussian(0.8,0.9,"#f5b041");
-  gaussian(1.8,0.9,"#2471a3");
-  svg11.append("text").attr("x",450).attr("y",50).text("p(x,y=0)*v(x)").style("fill","#f5b041");
-  svg11.append("text").attr("x",450).attr("y",70).text("p(x,y=1)*v(x)").style("fill","#2471a3");
+  const bars = g.selectAll("rect").data(data).enter().append("rect")
+    .attr("x", d=>x(d.model))
+    .attr("y", h)
+    .attr("width", x.bandwidth())
+    .attr("height", 0)
+    .attr("fill", "var(--gold)")
+    .attr("stroke","#777")
+    .attr("rx",4);
 
-  // ---------------- Chart 12 ----------------
-  const svg12 = d3.select("#chart12");
-  svg12.append("rect")
-    .attr("x",60).attr("y",80).attr("width",100).attr("height",100)
-    .attr("fill","#aed6f1");
-  svg12.append("rect")
-    .attr("x",110).attr("y",30).attr("width",100).attr("height",100)
-    .attr("fill","#fad7a0");
-  svg12.append("line")
-    .attr("x1",110).attr("y1",130).attr("x2",110).attr("y2",130)
-    .attr("stroke","#7d3c98").attr("stroke-width",2)
-    .transition().duration(1500).attr("x2",160).attr("y2",80);
-  svg12.append("circle").attr("cx",160).attr("cy",80).attr("r",4).attr("fill","#7d3c98");
-  </script>
+  bars.transition().duration(900)
+    .attr("y", d=>y(d.val))
+    .attr("height", d=>h - y(d.val));
+
+  // value labels with tween
+  g.selectAll(".vlabel").data(data).enter().append("text")
+    .attr("class","vlabel").attr("x", d=>x(d.model)+x.bandwidth()/2)
+    .attr("y", d=>y(d.val)-8).attr("text-anchor","middle").attr("fill","#333")
+    .transition().duration(900)
+    .tween("text", function(d){
+      const i = d3.interpolate(0,d.val); const self = d3.select(this);
+      return t=> self.text(i(t).toFixed(1));
+    });
+
+  // interactions
+  bars.on("mouseover", function(e,d){
+        d3.select(this).raise()
+          .transition().duration(150)
+          .attr("fill","var(--gold-d)")
+          .attr("x", x(d.model)-x.bandwidth()*0.03)
+          .attr("width", x.bandwidth()*1.06);
+        showTT([e.pageX,e.pageY], `<b>${d.model}</b>: ${d.val.toFixed(1)}%`);
+      })
+      .on("mouseout", function(e,d){
+        d3.select(this)
+          .transition().duration(150)
+          .attr("fill","var(--gold)")
+          .attr("x", x(d.model))
+          .attr("width", x.bandwidth());
+        hideTT();
+      })
+      .on("click", function(){
+        const on = d3.select(this).attr("data-dashed")==="1";
+        d3.select(this).attr("data-dashed", on? "0":"1")
+          .transition().duration(120)
+          .attr("stroke-dasharray", on? null : "6,4");
+      });
+}
+draw8();
+
+/* ---------- Chart 9: Sketch path + pen ---------- */
+function draw9(){
+  const svg = d3.select("#chart9"),
+        W=520, H=360, m={t:30,r:30,b:30,l:30};
+  const g = svg.append("g").attr("transform",`translate(${m.l},${m.t})`);
+  const w=W-m.l-m.r, h=H-m.t-m.b;
+
+  // a "sketch-like" polyline
+  const pts = [[60,h-60],[150,80],[230,h-60],[320,80],[400,h-60]];
+  const path = g.append("path")
+    .attr("d", d3.line().curve(d3.curveLinear)(pts))
+    .attr("fill","none").attr("stroke","#3a66d6").attr("stroke-width",4)
+    .attr("stroke-linecap","round")
+    .attr("stroke-dasharray", function(){return this.getTotalLength()})
+    .attr("stroke-dashoffset", function(){return this.getTotalLength()});
+
+  // pen head
+  const pen = g.append("circle").attr("r",5).attr("fill","#3a66d6").style("filter","drop-shadow(0 0 3px rgba(0,0,0,.25))");
+
+  const total = path.node().getTotalLength();
+  path.transition().duration(1800).ease(d3.easeLinear)
+      .attr("stroke-dashoffset", 0)
+      .tween("pen", () => t => {
+        const p = path.node().getPointAtLength(total * t);
+        pen.attr("cx", p.x).attr("cy", p.y);
+      });
+
+  // interactions
+  path.on("mouseover", function(){
+        d3.select(this).transition().duration(200).attr("stroke-width",6).ease(d3.easeElastic.period(0.2));
+      })
+      .on("mouseout", function(){
+        d3.select(this).transition().duration(200).attr("stroke-width",4);
+      });
+}
+draw9();
+
+/* ---------- Chart 10: Map circle + zoom/drag ---------- */
+function draw10(){
+  const svg = d3.select("#chart10"),
+        W=520, H=520;
+  svg.style("background","#fff8e9");
+
+  // grid
+  const grid = svg.append("g").attr("stroke","#e5e7eb").attr("stroke-width",1);
+  for(let i=20;i<W;i+=20){ grid.append("line").attr("x1",i).attr("y1",0).attr("x2",i).attr("y2",H); }
+  for(let j=20;j<H;j+=20){ grid.append("line").attr("x1",0).attr("y1",j).attr("x2",W).attr("y2",j); }
+
+  // fake land polygons
+  const land = svg.append("g").attr("fill","#f1dfa9").attr("stroke","#d9c27a");
+  land.append("path").attr("d","M80,420 L160,140 L240,440 Z");
+  land.append("path").attr("d","M300,320 L480,360 L420,180 Z");
+  land.append("path").attr("d","M260,120 L310,90 L330,140 Z");
+
+  const hud = svg.append("g"); // non-zoom HUD
+  const main = svg.append("g"); // zoom layer
+
+  const circle = main.append("circle")
+    .attr("cx", 260).attr("cy", 260).attr("r", 0)
+    .attr("fill","none").attr("stroke","var(--rose)").attr("stroke-width",3)
+    .style("vector-effect","non-scaling-stroke")
+    .transition().duration(1200).attr("r",150);
+
+  const cx = {x:260,y:260}; // circle center
+  const center = main.append("circle").attr("cx",cx.x).attr("cy",cx.y).attr("r",5).attr("fill","var(--rose)");
+
+  const label = hud.append("text").attr("x",10).attr("y",20).text("x' = (260, 260)").attr("fill","#333");
+
+  // drag center
+  main.call(d3.drag().on("drag", (ev) => {
+    cx.x = Math.max(20, Math.min(W-20, ev.x));
+    cx.y = Math.max(20, Math.min(H-20, ev.y));
+    center.attr("cx",cx.x).attr("cy",cx.y);
+    label.text(`x' = (${Math.round(cx.x)}, ${Math.round(cx.y)})`);
+  }));
+
+  // zoom/pan
+  svg.call(d3.zoom().scaleExtent([0.6, 3]).on("zoom", (ev)=>{
+    main.attr("transform", ev.transform);
+    // HUD stays static
+  }));
+}
+draw10();
+
+/* ---------- Chart 11: Two Gaussians + shaded overlap ---------- */
+function draw11(){
+  const svg = d3.select("#chart11"),
+        W=820, H=420, m={t:30,r:20,b:45,l:60};
+  const g = svg.append("g").attr("transform",`translate(${m.l},${m.t})`);
+  const w=W-m.l-m.r, h=H-m.t-m.b;
+
+  const x = d3.scaleLinear().domain([-2,5]).range([0,w]);
+  const y = d3.scaleLinear().domain([0,0.35]).range([h,0]);
+
+  const ax = g.append("g").attr("class","axis").attr("transform",`translate(0,${h})`).call(d3.axisBottom(x));
+  const ay = g.append("g").attr("class","axis").call(d3.axisLeft(y).tickSize(-w));
+  ay.selectAll(".tick line").classed("grid",true);
+
+  function pdf(mu,sigma){ return x=> (1/(sigma*Math.sqrt(2*Math.PI))) * Math.exp(-0.5*((x-mu)/sigma)**2); }
+  const xs = d3.range(-2,5,0.02);
+  const f0 = pdf(0.9,0.9), f1 = pdf(1.9,0.9);
+  const d0 = xs.map(xv=>({x:xv,y:f0(xv)}));
+  const d1 = xs.map(xv=>({x:xv,y:f1(xv)}));
+
+  const line = d3.line().x(d=>x(d.x)).y(d=>y(d.y));
+  g.append("path").datum(d0).attr("fill","none").attr("stroke","var(--orange)").attr("stroke-width",3).attr("opacity",0)
+    .transition().duration(900).attr("opacity",1).attr("d",line);
+  g.append("path").datum(d1).attr("fill","none").attr("stroke","var(--teal)").attr("stroke-width",3).attr("opacity",0)
+    .transition().duration(900).delay(200).attr("opacity",1).attr("d",line);
+
+  // dashed decision lines
+  const x1=1.0, x2=1.5;
+  g.selectAll(".vline").data([x1,x2]).enter().append("line").attr("class","vline")
+    .attr("x1",d=>x(d)).attr("x2",d=>x(d)).attr("y1",h).attr("y2",h)
+    .attr("stroke","#6b7280").attr("stroke-dasharray","6,6")
+    .transition().duration(800).attr("y1",0);
+
+  // overlap area = min(f0,f1)
+  const minAreaData = xs.map(xv=>({x:xv, y:Math.min(f0(xv),f1(xv))}));
+  const area = d3.area().x(d=>x(d.x)).y0(y(0)).y1(d=>y(d.y));
+
+  // clip path to animate area width
+  const clip = g.append("clipPath").attr("id","clipA").append("rect").attr("x",x(x1)).attr("y",0).attr("width",0).attr("height",h);
+  g.append("path").datum(minAreaData).attr("d",area).attr("fill","#999").attr("opacity",0.35).attr("clip-path","url(#clipA)");
+  clip.transition().duration(1000).delay(300).attr("width", x(x2)-x(x1));
+
+  // legend
+  const leg = g.append("g").attr("class","legend").attr("transform",`translate(${w-220},20)`);
+  leg.append("rect").attr("x",0).attr("y",-18).attr("width",220).attr("height",46).attr("fill","#fff").attr("opacity",.8).attr("rx",8);
+  leg.append("line").attr("x1",10).attr("y1",6).attr("x2",50).attr("y2",6).attr("stroke","var(--orange)").attr("stroke-width",3);
+  leg.append("text").attr("x",60).attr("y",10).text("p(x, y=0) * v(x)");
+  leg.append("line").attr("x1",10).attr("y1",26).attr("x2",50).attr("y2",26).attr("stroke","var(--teal)").attr("stroke-width",3);
+  leg.append("text").attr("x",60).attr("y",30).text("p(x, y=1) * v(x)");
+
+  // interactions: tooltip + toggle area
+  const overlay = g.append("rect").attr("width",w).attr("height",h).attr("fill","transparent")
+    .on("mousemove", (ev)=>{
+      const xv = x.invert(d3.pointer(ev)[0]);
+      const val0 = f0(xv), val1 = f1(xv);
+      showTT([ev.pageX, ev.pageY], `x=${xv.toFixed(2)} · y0=${val0.toFixed(3)} · y1=${val1.toFixed(3)}`);
+    }).on("mouseleave", hideTT)
+    .on("click", ()=>{
+      const on = clip.attr("data-on")==="1";
+      clip.attr("data-on", on? "0":"1")
+          .transition().duration(500)
+          .attr("width", on? 0 : x(x2)-x(x1));
+    });
+}
+draw11();
+
+/* ---------- Chart 12: Geometry with draggable point ---------- */
+function draw12(){
+  const svg = d3.select("#chart12"),
+        W=640, H=420, m={t:20,r:20,b:20,l:20};
+  const g = svg.append("g").attr("transform",`translate(${m.l},${m.t})`);
+  const w=W-m.l-m.r, h=H-m.t-m.b;
+
+  // squares
+  g.append("rect").attr("x",100).attr("y",160).attr("width",140).attr("height",140).attr("fill","var(--sky)");
+  g.append("rect").attr("x",200).attr("y",80).attr("width",140).attr("height",140).attr("fill","var(--sand)");
+
+  // diagonal separating line
+  let angle = 45;
+  const diag = g.append("line").attr("stroke","#9b59b6").attr("stroke-dasharray","6,6").attr("stroke-width",2);
+  const updateDiag = () => {
+    const x0=120, y0=300, len=280, rad=angle*Math.PI/180;
+    diag.attr("x1",x0).attr("y1",y0).attr("x2", x0+len*Math.cos(rad)).attr("y2", y0-len*Math.sin(rad));
+  };
+  updateDiag();
+
+  // arrow marker
+  svg.append("defs").append("marker")
+    .attr("id","arrow").attr("viewBox","0 0 10 10")
+    .attr("refX","10").attr("refY","5")
+    .attr("markerWidth","8").attr("markerHeight","8")
+    .attr("orient","auto-start-reverse").attr("markerUnits","userSpaceOnUse")
+    .append("path").attr("d","M 0 0 L 10 5 L 0 10 z").attr("fill","var(--violet)");
+
+  // draggable point x
+  let P = {x:310, y:110}, Pp = {x:220, y:240};
+  const px = g.append("circle").attr("r",6).attr("fill","var(--violet)").attr("cx",P.x).attr("cy",P.y);
+  const pxp = g.append("circle").attr("r",6).attr("fill","#333").attr("cx",Pp.x).attr("cy",Pp.y");
+
+  // connecting line
+  const link = g.append("line").attr("stroke","var(--violet)").attr("stroke-width",3).attr("marker-end","url(#arrow)")
+    .attr("x1",Pp.x).attr("y1",Pp.y).attr("x2",Pp.x).attr("y2",Pp.y);
+  link.transition().duration(900).attr("x2",P.x).attr("y2",P.y);
+  g.append("text").attr("x",Pp.x-10).attr("y",Pp.y+18).text("x'").attr("fill","#333");
+  const label = g.append("text").attr("x",P.x+10).attr("y",P.y-10).text("x").attr("fill","#333");
+
+  // interaction: drag x to update line
+  px.call(d3.drag().on("drag", (ev)=>{
+    P.x = Math.max(40, Math.min(w-40, ev.x));
+    P.y = Math.max(40, Math.min(h-40, ev.y));
+    px.attr("cx",P.x).attr("cy",P.y);
+    link.attr("x2",P.x).attr("y2",P.y);
+    label.attr("x",P.x+10).attr("y",P.y-10);
+  }));
+
+  // click to rotate diagonal angle
+  svg.on("click", () => {
+    angle = (angle + 15) % 90;
+    updateDiag();
+  });
+}
+draw12();
+</script>
 </body>
 </html>
